@@ -46,7 +46,7 @@ function stringToBytes(str: string): Bytes {
 }
 
 function createForum(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let id = event.transaction.hash.toString()
+  let id = event.transaction.hash.toHexString()
   let forum = new Forum(id)
 
   let title = args.get("title")

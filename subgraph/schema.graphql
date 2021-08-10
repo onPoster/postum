@@ -1,7 +1,6 @@
 type Forum @entity {
   id: ID!
   title: String!
-  ens: String
   admin_roles: [AdminRole!]! @derivedFrom(field: "forum")
 }
 

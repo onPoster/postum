@@ -44,7 +44,7 @@ async function main() {
     wallet
   );
 
-  // check if singleton factory is deplyed.
+  // check if singleton factory is deployed.
   if ((await hre.ethers.provider.getCode(singletonFactory.address)) === "0x") {
     // fund the singleton factory deployer account
     await wallet.sendTransaction({

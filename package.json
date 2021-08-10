@@ -16,7 +16,9 @@
     "up": "yarn docker-up && yarn poster-deploy-local && yarn subgraph-up",
     "down": "yarn docker-down && yarn docker-clean",
 
-    "test-poster": "yarn workspace @postum/poster test-local",
+    "test": "yarn test-poster && yarn test-subgraph",
+    "test-poster": "yarn workspace @postum/poster test-subgraph",
+    "test-subgraph": "yarn workspace @postum/subgraph test",
 
     "docker-up": "docker-compose -f docker-compose.yaml up -d",
     "docker-down": "docker-compose -f docker-compose.yaml down",

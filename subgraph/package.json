@@ -10,7 +10,8 @@
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ EzraWeller/postum",
     "create-local": "graph create --node http://localhost:8020/ EzraWeller/postum",
     "remove-local": "graph remove --node http://localhost:8020/ EzraWeller/postum",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 EzraWeller/postum"
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 EzraWeller/postum",
+    "test": "node test/queries.js"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.20.1",
