@@ -1,0 +1,21 @@
+{
+  "name": "@postum/subgraph",
+  "version": "0.0.1",
+  "license": "MIT",
+  "scripts": {
+    "build-all": "yarn codegen && yarn build",
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "build-and-deploy-local": "yarn build-all && yarn create-local && yarn deploy-local",
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ EzraWeller/postum",
+    "create-local": "graph create --node http://localhost:8020/ EzraWeller/postum",
+    "remove-local": "graph remove --node http://localhost:8020/ EzraWeller/postum",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 EzraWeller/postum"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.20.1",
+    "@graphprotocol/graph-ts": "0.20.0",
+    "@postum/json-schema": "0.0.1",
+    "json-as": "^0.1.7"
+  }
+}

@@ -1,0 +1,17 @@
+type Forum @entity {
+  id: ID!
+  title: String!
+  ens: String
+  admin_roles: [AdminRole!]! @derivedFrom(field: "forum")
+}
+
+type User @entity {
+  id: ID!
+  admin_roles: [AdminRole!] @derivedFrom(field: "user")
+}
+
+type AdminRole @entity {
+  id: ID!
+  user: User!
+  forum: Forum!
+}

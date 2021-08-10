@@ -1,0 +1,30 @@
+{
+  "name": "postum",
+  "version": "0.0.1",
+  "description": "Forum built on the simple Poster smart contract",
+  "main": "index.js",
+  "author": "Ezra Weller",
+  "license": "MIT",
+  "private": true,
+  "engines": { "node": "~14.17.0" },
+  "workspaces": [
+    "json-schema",
+    "subgraph",
+    "poster"
+  ],
+  "scripts": {
+    "up": "yarn docker-up && yarn poster-deploy-local && yarn subgraph-up",
+    "down": "yarn docker-down && yarn docker-clean",
+
+    "test-poster": "yarn workspace @postum/poster test-local",
+
+    "docker-up": "docker-compose -f docker-compose.yaml up -d",
+    "docker-down": "docker-compose -f docker-compose.yaml down",
+    "docker-clean": "docker volume rm postum_postgres-volume",
+    "docker-logs": "docker-compose -f docker-compose.yaml logs",
+
+    "poster-deploy-local": "yarn workspace @postum/poster deploy-local",
+
+    "subgraph-up": "yarn workspace @postum/subgraph build-and-deploy-local"
+  }
+}
