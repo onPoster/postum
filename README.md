@@ -1,5 +1,5 @@
 # POSTUM
-*A forum implemented using the Poster contract*
+*Decentralized protocol for forums implemented on the Poster contract*
 
 --very WIP!!--
 
