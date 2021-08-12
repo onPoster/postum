@@ -1,4 +1,4 @@
-import { json, Bytes, JSONValue, TypedMap, store, log } from "@graphprotocol/graph-ts"
+import { json, Bytes, JSONValue, TypedMap, store, crypto, log } from "@graphprotocol/graph-ts"
 import { Poster, NewPost } from "../generated/Poster/Poster"
 import { Forum, User, AdminRole } from "../generated/schema"
 
