@@ -13,8 +13,8 @@ Future Packages:
 - frontend: helps users use the client to send tx and reads the subgraph to display state
 
 ## TODO
-[] assign ens names to forums (each ens can only be attached to one forum at a time, and can only be assigned by the current owner of the ens name)
-[] support emojies
+- [ ] assign ens names to forums (each ens can only be attached to one forum at a time, and can only be assigned by the current owner of the ens name)
+- [ ] support emojies
 
 ## Speculation
 Perhaps eventually this becomes a dev kit for developing Poster app backends: 
