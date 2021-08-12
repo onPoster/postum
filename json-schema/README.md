@@ -1,5 +1,6 @@
 ## TODO 
 - [ ] tests should check valid and invalid examples of all schema against the validation function
+- [ ] restrict adding and removing admins to a new "owner" roll?
 - [ ] upload schema to decentralized storage somewhere? or maybe even onto ethereum somewhere?
 
 ## Possible future direction

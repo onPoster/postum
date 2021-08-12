@@ -343,79 +343,227 @@ const DELETE_THREAD_schema = {
     }
 }
 
-const CREATE_POST_schema = {}
+const CREATE_POST_schema = {
+    "$id": "postum/CREATE_POST.json",
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "examples": [
+        {
+            "action": "CREATE_POST",
+            "args": {
+                "reply_to_post": "0x5F8777bbe7977D3ff8A53D00Ba01a34CD8234Aa4",
+                "content": "Post content"
+            }
+        }
+    ],
+    "required": [
+        "action",
+        "args"
+    ],
+    "type": "object",
+    "properties": {
+        "action": {
+            "const": "CREATE_POST",
+            "type": "string"
+        },
+        "args": {
+            "required": [
+                "content"
+            ],
+            "type": "object",
+            "properties": {
+                "reply_to_post": {
+                    "pattern": "^0x[A-Fa-f0-9]{40}$",
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string",
+                    "description": "Should be stringified markdown or similar"
+                }
+            }
+        }
+    }
+}
 
-const EDIT_POST_schema = {}
+const EDIT_POST_schema = {
+    "$id": "postum/EDIT_POST.json",
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "examples": [
+        {
+            "action": "EDIT_POST",
+            "args": {
+                "id": "0x5F8777bbe7977D3ff8A53D00Ba01a34CD8234Aa4",
+                "content": "Edited post content"
+            }
+        }
+    ],
+    "required": [
+        "action",
+        "args"
+    ],
+    "description": "Should be post author only",
+    "type": "object",
+    "properties": {
+        "action": {
+            "const": "EDIT_POST",
+            "type": "string"
+        },
+        "args": {
+            "required": [
+                "id",
+                "content"
+            ],
+            "type": "object",
+            "properties": {
+                "id": {
+                    "pattern": "^0x[A-Fa-f0-9]{40}$",
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string",
+                    "description": "Should be stringified markdown or similar"
+                }
+            }
+        }
+    }
+}
 
-const DELETE_POST_schema = {}
+const DELETE_POST_schema = {
+    "$id": "postum/DELETE_POST.json",
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "examples": [
+        {
+            "action": "DELETE_POST",
+            "args": {
+                "id": "0x5F8777bbe7977D3ff8A53D00Ba01a34CD8234Aa4",
+            }
+        }
+    ],
+    "required": [
+        "action",
+        "args"
+    ],
+    "description": "Should be admin or post author only",
+    "type": "object",
+    "properties": {
+        "action": {
+            "const": "DELETE_POST",
+            "type": "string"
+        },
+        "args": {
+            "required": [
+                "id"
+            ],
+            "type": "object",
+            "properties": {
+                "id": {
+                    "pattern": "^0x[A-Fa-f0-9]{40}$",
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
 
-const GRANT_ADMIN_ROLE_schema = {}
+const GRANT_ADMIN_ROLE_schema = {
+    "$id": "postum/GRANT_ADMIN_ROLE.json",
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "examples": [
+        {
+            "action": "GRANT_ADMIN_ROLE",
+            "args": {
+                "forum": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "user": "0x5F8777bbe7977D3ff8A53D00Ba01a34CD8234Aa4"
+            }
+        }
+    ],
+    "required": [
+        "action",
+        "args"
+    ],
+    "description": "Should be admin only",
+    "type": "object",
+    "properties": {
+        "action": {
+            "const": "GRANT_ADMIN_ROLE",
+            "type": "string"
+        },
+        "args": {
+            "required": [
+                "forum",
+                "user"
+            ],
+            "type": "object",
+            "properties": {
+                "forum": {
+                    "pattern": "^0x[A-Fa-f0-9]{64}$",
+                    "type": "string"
+                },
+                "user": {
+                    "pattern": "^0x[A-Fa-f0-9]{40}$",
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
 
-const REMOVE_ADMIN_ROLE_schema = {}
-
-/**
- * Delete Category
-Params
-    ID
-Handler logic notes
-    Admin only
-    Deletes category, but not any posts
-
-Create Thread
-Params
-    Title
-    forum
-    Category
-    Content
-Handler logic notes
-    creates the thread's first post
-
-Delete Thread
-Params
-    ID
-Handler logic notes
-    Admin only
-
-Create Post
-Params
-    Content
-    reply_to_post
-Thread ID
-    Handler logic notes
-
-Edit Post
-Params
-    ID
-    Content
-Handler logic notes
-    Post author only
-
-Delete Post
-Params
-    ID
-Handler logic notes
-    Post author or admin only
-
-Grant Admin Role
-Params
-    User ID
-    forum ID
-Handler logic notes
-    forum admins only
-
-Remove Admin Role
-Params
-    ID
-Handler logic notes
-    forum admins only
-    Cannot reduce a forum below 1 admin roles
- */
+const REMOVE_ADMIN_ROLE_schema = {
+    "$id": "postum/REMOVE_ADMIN_ROLE.json",
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "examples": [
+        {
+            "action": "REMOVE_ADMIN_ROLE",
+            "args": {
+                "forum": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "user": "0x5F8777bbe7977D3ff8A53D00Ba01a34CD8234Aa4"
+            }
+        }
+    ],
+    "required": [
+        "action",
+        "args"
+    ],
+    "description": "Should be admin only and not allow reducing total admins for a forum below 1",
+    "type": "object",
+    "properties": {
+        "action": {
+            "const": "REMOVE_ADMIN_ROLE",
+            "type": "string"
+        },
+        "args": {
+            "required": [
+                "id"
+            ],
+            "type": "object",
+            "properties": {
+                "forum": {
+                    "pattern": "^0x[A-Fa-f0-9]{64}$",
+                    "type": "string"
+                },
+                "user": {
+                    "pattern": "^0x[A-Fa-f0-9]{40}$",
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
 
 const POSTUM_ACTION_schema = {
   "oneOf": [
     CREATE_FORUM_schema,
     EDIT_FORUM_schema,
-    DELETE_FORUM_schema
+    DELETE_FORUM_schema,
+    CREATE_CATEGORY_schema,
+    EDIT_CATEGORY_schema,
+    DELETE_CATEGORY_schema,
+    CREATE_THREAD_schema,
+    DELETE_THREAD_schema,
+    CREATE_POST_schema,
+    EDIT_POST_schema,
+    DELETE_POST_schema,
+    GRANT_ADMIN_ROLE_schema,
+    REMOVE_ADMIN_ROLE_schema
   ]
 }
 
@@ -423,5 +571,15 @@ module.exports = {
   CREATE_FORUM_schema,
   EDIT_FORUM_schema,
   DELETE_FORUM_schema,
+  CREATE_CATEGORY_schema,
+  EDIT_CATEGORY_schema,
+  DELETE_CATEGORY_schema,
+  CREATE_THREAD_schema,
+  DELETE_THREAD_schema,
+  CREATE_POST_schema,
+  EDIT_POST_schema,
+  DELETE_POST_schema,
+  GRANT_ADMIN_ROLE_schema,
+  REMOVE_ADMIN_ROLE_schema,
   POSTUM_ACTION_schema
 }
