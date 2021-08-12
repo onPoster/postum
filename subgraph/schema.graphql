@@ -1,7 +1,15 @@
 type Forum @entity {
   id: ID!
   title: String!
+  categories: [Category!]! @derivedFrom(field: "forum")
   admin_roles: [AdminRole!]! @derivedFrom(field: "forum")
+}
+
+type Category @entity {
+  id: ID!
+  forum: Forum!
+  name: String!
+  description: String!
 }
 
 type User @entity {

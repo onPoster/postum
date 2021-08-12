@@ -1,6 +1,6 @@
-import { json, Bytes, JSONValue, TypedMap, store, crypto, log } from "@graphprotocol/graph-ts"
+import { json, Bytes, JSONValue, TypedMap, store, crypto, log, ByteArray } from "@graphprotocol/graph-ts"
 import { Poster, NewPost } from "../generated/Poster/Poster"
-import { Forum, User, AdminRole } from "../generated/schema"
+import { Forum, Category, User, AdminRole } from "../generated/schema"
 
 export function handleNewPost(event: NewPost): void {
   let bytes = stringToBytes(event.params.content)
@@ -26,6 +26,46 @@ export function handleNewPost(event: NewPost): void {
     deleteForum(event, argsObj)
     return
     
+  } else if (actionString == "CREATE_CATEGORY") {
+    createCategory(event, argsObj)
+    return
+    
+  } else if (actionString == "EDIT_CATEGORY") {
+    editCategory(event, argsObj)
+    return
+    
+  } else if (actionString == "DELETE_CATEGORY") {
+    deleteCategory(event, argsObj)
+    return
+    
+  } else if (actionString == "CREATE_THREAD") {
+    createThread(event, argsObj)
+    return
+    
+  } else if (actionString == "DELETE_THREAD") {
+    deleteThread(event, argsObj)
+    return
+    
+  } else if (actionString == "CREATE_POST") {
+    createPost(event, argsObj)
+    return
+    
+  } else if (actionString == "EDIT_POST") {
+    editPost(event, argsObj)
+    return
+    
+  } else if (actionString == "DELETE_POST") {
+    deletePost(event, argsObj)
+    return
+    
+  } else if (actionString == "GRANT_ADMIN_ROLE") {
+    grantAdminRole(event, argsObj)
+    return
+    
+  } else if (actionString == "REMOVE_ADMIN_ROLE") {
+    removeAdminRole(event, argsObj)
+    return
+    
   }
 }
 
@@ -45,13 +85,12 @@ function stringToBytes(str: string): Bytes {
   return codePoints
 }
 
+// ==== Action Functions ====
+
 function createForum(event: NewPost, args: TypedMap<string, JSONValue>): void {
   let id = event.transaction.hash.toHexString()
   let forum = new Forum(id)
-
-  let title = args.get("title")
-  let titleString = title.toString()
-  forum.title = titleString
+  forum.title = args.get("title").toString()
 
   let admins = args.get("admins")
   let adminArray = admins.toArray()
@@ -70,22 +109,68 @@ function createForum(event: NewPost, args: TypedMap<string, JSONValue>): void {
 }
 
 function editForum(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let id = args.get("id")
-  let idString = id.toString()
-  let forum = Forum.load(idString)
-  if (forum == null) { return }
-
-  let title = args.get("title")
-  let titleString = title.toString()
-  forum.title = titleString
-
+  let id = args.get("id").toString()
+  let forum = Forum.load(id)
+  if (forum == null) { return } 
+  forum.title = args.get("title").toString()
   forum.save()
 }
 
 function deleteForum(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let id = args.get("id")
-  let idString = id.toString()
-  let forum = Forum.load(idString)
+  let id = args.get("id").toString()
+  let forum = Forum.load(id)
   if (forum == null) { return }
-  store.remove("Forum", idString)
+  store.remove("Forum", id)
 }
+
+function createCategory(event: NewPost, args: TypedMap<string, JSONValue>): void {
+  let forumId = args.get("forum").toString()
+  let forum = Forum.load(forumId)
+  if (forum == null) { return }
+
+  let eventHash = event.transaction.hash.toHexString()
+  let idBytes = ByteArray.fromHexString(forumId + eventHash)
+  let id = crypto.keccak256(idBytes).toHexString()
+  let category = new Category(id)
+  category.forum = forumId
+  category.name = args.get("name").toString()
+  category.description = args.get("description").toString()
+  category.save()
+}
+
+function editCategory(event: NewPost, args: TypedMap<string, JSONValue>): void {
+  let id = args.get("id").toString()
+  let category = Category.load(id)
+  if (category == null) { return }
+  category.name = args.get("name").toString()
+  category.description = args.get("description").toString()
+}
+
+function deleteCategory(event: NewPost, args: TypedMap<string, JSONValue>): void {
+  let id = args.get("id").toString()
+  let category = Category.load(id)
+  if (category == null) { return }
+  store.remove("Category", id)
+}
+
+function createThread(event: NewPost, args: TypedMap<string, JSONValue>): void {
+}
+
+function deleteThread(event: NewPost, args: TypedMap<string, JSONValue>): void {
+}
+
+function createPost(event: NewPost, args: TypedMap<string, JSONValue>): void {
+}
+
+function editPost(event: NewPost, args: TypedMap<string, JSONValue>): void {
+}
+
+function deletePost(event: NewPost, args: TypedMap<string, JSONValue>): void {
+}
+
+function grantAdminRole(event: NewPost, args: TypedMap<string, JSONValue>): void {
+}
+
+function removeAdminRole(event: NewPost, args: TypedMap<string, JSONValue>): void {
+}
+
