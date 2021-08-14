@@ -7,7 +7,7 @@ export async function postsByThread(
 ) {
   const skip = pageSize * pageIndex
   const query = `{
-    posts(thread: "${thread}", first: "${pageSize}", skip: "${skip}") {
+    posts(thread: "${thread}", first: ${pageSize}, skip: ${skip}) {
       id
       author { id }
       thread { id }
@@ -33,7 +33,7 @@ export async function postsByAuthor(
 ) {
   const skip = pageSize * pageIndex
   const query = `{
-    posts(author: "${author}", first: "${pageSize}", skip: "${skip}") {
+    posts(author: "${author}", first: ${pageSize}, skip: ${skip}) {
       id
       author { id }
       thread {
@@ -45,7 +45,7 @@ export async function postsByAuthor(
           title
         }
         category { id }
-        posts(first: "1") {
+        posts(first: 1) {
           id
           author { id }
           content
@@ -68,6 +68,49 @@ export async function postsByAuthor(
   return (await querySubgraph(query)).data.posts
 }
 
+export async function postsBySearch(
+  searchText: string,
+  pageSize: number, 
+  pageIndex: number
+) {
+  const skip = pageSize * pageIndex
+  const query = `{
+    posts(content_contains: "${searchText}", first: ${pageSize}, skip: ${skip}) {
+      id
+      author { id }
+      thread { 
+        id
+        author { id }
+        title 
+        forum { 
+          id
+          title
+        }
+        category { id }
+        posts(first: 1) {
+          id
+          author { id }
+          content
+          reply_to_post { id }
+          deleted
+        }
+      }
+      content
+      reply_to_post {
+        id
+        author { id }
+        thread { id }
+        content
+        reply_to_post { id }
+        deleted
+      }
+      deleted
+    }
+  }`
+  return (await querySubgraph(query)).data.posts
+}
+
+/*
 export async function postsBySearch(
   searchText: string,
   pageSize: number, 
@@ -199,3 +242,4 @@ export async function postsBySearchAndThread(
   }`
   return (await querySubgraph(query)).data.posts
 }
+*/

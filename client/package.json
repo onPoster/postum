@@ -6,7 +6,7 @@
   "author": "Ezra Weller",
   "license": "MIT",
   "scripts": {
-    "test": "ts-node test/*"
+    "test": "ts-node test/test"
   },
   "dependencies": {
     "@postum/json-schema": "0.0.1",

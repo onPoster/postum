@@ -7,13 +7,13 @@ export async function threadsByForum(
 ) {
   const skip = pageSize * pageIndex
   const query = `{
-    threads(forum: "${forum}", first: "${pageSize}", skip: "${skip}") {
+    threads(forum: "${forum}", first: ${pageSize}, skip: ${skip}) {
       id
       author { id }
       title
       forum { id }
       category { id }
-      posts(first: "${pageSize}")) {
+      posts(first: ${pageSize})) {
         id
         author { id }
         content
@@ -32,7 +32,7 @@ export async function threadsByAuthor(
 ) {
   const skip = pageSize * pageIndex
   const query = `{
-    threads(author: "${author}", first: "${pageSize}", skip: "${skip}") {
+    threads(author: "${author}", first: ${pageSize}, skip: ${skip}) {
       id
       author { id }
       title 
@@ -44,7 +44,7 @@ export async function threadsByAuthor(
         id
         title
       }
-      posts(first: "${pageSize}") {
+      posts(first: ${pageSize}) {
         id
         author { id }
         content

@@ -45,12 +45,12 @@ type AdminRole @entity {
   forum: Forum!
 }
 
-type _Schema_ @fulltext(
-  name: "postSearch"
-  language: en
-  algorithm: proximityRank
-  include: [{
-    entity: "Post",
-    fields: [{ name: "content" }]
-  }]
-)
+# type _Schema_ @fulltext(
+#   name: "postSearch"
+#   language: en
+#   algorithm: proximityRank
+#   include: [{
+#     entity: "Post",
+#     fields: [{ name: "content" }]
+#   }]
+# )

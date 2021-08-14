@@ -9,6 +9,7 @@ export async function querySubgraph(query: string) {
   } catch (err) {
     console.error('Graph Query Error: ', err)
   }
+  console.log("res", res)
   return res
 }
 

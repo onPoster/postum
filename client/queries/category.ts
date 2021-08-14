@@ -7,12 +7,12 @@ export async function categoriesByForum(
 ) {
   const skip = pageSize * pageIndex
   const query = `{
-    categories(forum: "${forum}", first: "${pageSize}", skip: "${skip}") {
+    categories(forum: ${forum}, first: ${pageSize}, skip: ${skip}) {
       id
       title
       description
       forum { id }
-      threads(first: "5") {
+      threads(first: 5) {
         id
         author { id }
         title 
