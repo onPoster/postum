@@ -1,6 +1,28 @@
-import { json, Bytes, JSONValue, TypedMap, store, crypto, log, ByteArray } from "@graphprotocol/graph-ts"
-import { Poster, NewPost } from "../generated/Poster/Poster"
-import { Forum, Category, User, AdminRole } from "../generated/schema"
+import { json, Bytes, log } from "@graphprotocol/graph-ts"
+import { NewPost } from "../generated/Poster/Poster"
+import {
+  createForum,
+  editForum,
+  deleteForum
+} from "./actions/forum"
+import {
+  createCategory,
+  editCategory,
+  deleteCategory
+} from "./actions/category"
+import {
+  createThread,
+  deleteThread
+} from "./actions/thread"
+import {
+  createPost,
+  editPost,
+  deletePost
+} from "./actions/post"
+import {
+  grantAdminRole,
+  removeAdminRole
+} from "./actions/adminRole"
 
 export function handleNewPost(event: NewPost): void {
   let bytes = stringToBytes(event.params.content)
@@ -83,94 +105,5 @@ function stringToBytes(str: string): Bytes {
     ]
   )
   return codePoints
-}
-
-// ==== Action Functions ====
-
-function createForum(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let id = event.transaction.hash.toHexString()
-  let forum = new Forum(id)
-  forum.title = args.get("title").toString()
-
-  let admins = args.get("admins")
-  let adminArray = admins.toArray()
-  for(let i = 0; i < adminArray.length; i++) {
-    let userId = adminArray[i].toString()
-    let user = User.load(userId)
-    if (user == null) { user = new User(userId) }
-    let adminRole = new AdminRole(forum.id + '-' + user.id)
-    adminRole.forum = forum.id
-    adminRole.user = user.id
-    adminRole.save()
-    user.save()
-  }
-
-  forum.save()
-}
-
-function editForum(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let id = args.get("id").toString()
-  let forum = Forum.load(id)
-  if (forum == null) { return } 
-  forum.title = args.get("title").toString()
-  forum.save()
-}
-
-function deleteForum(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let id = args.get("id").toString()
-  let forum = Forum.load(id)
-  if (forum == null) { return }
-  store.remove("Forum", id)
-}
-
-function createCategory(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let forumId = args.get("forum").toString()
-  let forum = Forum.load(forumId)
-  if (forum == null) { return }
-
-  let eventHash = event.transaction.hash.toHexString()
-  let idBytes = ByteArray.fromHexString(forumId + eventHash)
-  let id = crypto.keccak256(idBytes).toHexString()
-  let category = new Category(id)
-  category.forum = forumId
-  category.name = args.get("name").toString()
-  category.description = args.get("description").toString()
-  category.save()
-}
-
-function editCategory(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let id = args.get("id").toString()
-  let category = Category.load(id)
-  if (category == null) { return }
-  category.name = args.get("name").toString()
-  category.description = args.get("description").toString()
-}
-
-function deleteCategory(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let id = args.get("id").toString()
-  let category = Category.load(id)
-  if (category == null) { return }
-  store.remove("Category", id)
-}
-
-function createThread(event: NewPost, args: TypedMap<string, JSONValue>): void {
-}
-
-function deleteThread(event: NewPost, args: TypedMap<string, JSONValue>): void {
-}
-
-function createPost(event: NewPost, args: TypedMap<string, JSONValue>): void {
-}
-
-function editPost(event: NewPost, args: TypedMap<string, JSONValue>): void {
-}
-
-function deletePost(event: NewPost, args: TypedMap<string, JSONValue>): void {
-}
-
-function grantAdminRole(event: NewPost, args: TypedMap<string, JSONValue>): void {
-}
-
-function removeAdminRole(event: NewPost, args: TypedMap<string, JSONValue>): void {
 }
 

@@ -71,7 +71,8 @@ const EDIT_FORUM_schema = {
       },
       "args": {
           "required": [
-              "id"
+              "id",
+              "title"
           ],
           "type": "object",
           "properties": {
@@ -132,7 +133,7 @@ const CREATE_CATEGORY_schema = {
             "action": "CREATE_CATEGORY",
             "args": {
                 "forum": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-                "name": "New Category",
+                "title": "New Category",
                 "description": "discuss the new category"
             }
         }
@@ -151,7 +152,7 @@ const CREATE_CATEGORY_schema = {
         "args": {
             "required": [
                 "forum",
-                "name",
+                "title",
                 "description"
             ],
             "type": "object",
@@ -160,7 +161,7 @@ const CREATE_CATEGORY_schema = {
                     "pattern": "^0x[A-Fa-f0-9]{64}$",
                     "type": "string"
                 },
-                "name": {
+                "title": {
                     "type": "string"
                 },
                 "description": {
@@ -178,8 +179,8 @@ const EDIT_CATEGORY_schema = {
         {
             "action": "EDIT_CATEGORY",
             "args": {
-                "id": "0x5F8777bbe7977D3ff8A53D00Ba01a34CD8234Aa4",
-                "name": "Edited Category",
+                "id": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "title": "Edited Category",
                 "description": "discuss the edited category"
             }
         }
@@ -202,10 +203,10 @@ const EDIT_CATEGORY_schema = {
             "type": "object",
             "properties": {
                 "id": {
-                    "pattern": "^0x[A-Fa-f0-9]{40}$",
+                    "pattern": "^0x[A-Fa-f0-9]{64}$",
                     "type": "string"
                 },
-                "name": {
+                "title": {
                     "type": "string"
                 },
                 "description": {
@@ -223,7 +224,7 @@ const DELETE_CATEGORY_schema = {
         {
             "action": "DELETE_CATEGORY",
             "args": {
-                "id": "0x5F8777bbe7977D3ff8A53D00Ba01a34CD8234Aa4"
+                "id": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
             }
         }
     ],
@@ -245,7 +246,7 @@ const DELETE_CATEGORY_schema = {
             "type": "object",
             "properties": {
                 "id": {
-                    "pattern": "^0x[A-Fa-f0-9]{40}$",
+                    "pattern": "^0x[A-Fa-f0-9]{64}$",
                     "type": "string"
                 }
             }
@@ -261,7 +262,7 @@ const CREATE_THREAD_schema = {
             "action": "CREATE_THREAD",
             "args": {
                 "forum": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-                "category": "0x5F8777bbe7977D3ff8A53D00Ba01a34CD8234Aa4",
+                "category": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
                 "title": "New Thread",
                 "content": "Example post content"
             }
@@ -291,7 +292,7 @@ const CREATE_THREAD_schema = {
                     "type": "string"
                 },
                 "category": {
-                    "pattern": "^0x[A-Fa-f0-9]{40}$",
+                    "pattern": "^0x[A-Fa-f0-9]{64}$",
                     "type": "string"
                 },
                 "title": {
@@ -313,7 +314,7 @@ const DELETE_THREAD_schema = {
         {
             "action": "DELETE_THREAD",
             "args": {
-                "id": "0x5F8777bbe7977D3ff8A53D00Ba01a34CD8234Aa4"
+                "id": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
             }
         }
     ],
@@ -335,7 +336,7 @@ const DELETE_THREAD_schema = {
             "type": "object",
             "properties": {
                 "id": {
-                    "pattern": "^0x[A-Fa-f0-9]{40}$",
+                    "pattern": "^0x[A-Fa-f0-9]{64}$",
                     "type": "string"
                 }
             }
@@ -350,7 +351,8 @@ const CREATE_POST_schema = {
         {
             "action": "CREATE_POST",
             "args": {
-                "reply_to_post": "0x5F8777bbe7977D3ff8A53D00Ba01a34CD8234Aa4",
+                "thread": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "reply_to_post": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA-5",
                 "content": "Post content"
             }
         }
@@ -367,12 +369,17 @@ const CREATE_POST_schema = {
         },
         "args": {
             "required": [
+                "thread",
                 "content"
             ],
             "type": "object",
             "properties": {
+                "thread": {
+                    "pattern": "^0x[A-Fa-f0-9]{64}$",
+                    "type": "string"
+                },
                 "reply_to_post": {
-                    "pattern": "^0x[A-Fa-f0-9]{40}$",
+                    "pattern": "^0x[A-Fa-f0-9]{64}-[0-9]+$",
                     "type": "string"
                 },
                 "content": {
@@ -391,7 +398,7 @@ const EDIT_POST_schema = {
         {
             "action": "EDIT_POST",
             "args": {
-                "id": "0x5F8777bbe7977D3ff8A53D00Ba01a34CD8234Aa4",
+                "id": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA-1234",
                 "content": "Edited post content"
             }
         }
@@ -415,7 +422,7 @@ const EDIT_POST_schema = {
             "type": "object",
             "properties": {
                 "id": {
-                    "pattern": "^0x[A-Fa-f0-9]{40}$",
+                    "pattern": "^0x[A-Fa-f0-9]{64}-[0-9]+$",
                     "type": "string"
                 },
                 "content": {
@@ -434,7 +441,7 @@ const DELETE_POST_schema = {
         {
             "action": "DELETE_POST",
             "args": {
-                "id": "0x5F8777bbe7977D3ff8A53D00Ba01a34CD8234Aa4",
+                "id": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA-23",
             }
         }
     ],
@@ -456,7 +463,7 @@ const DELETE_POST_schema = {
             "type": "object",
             "properties": {
                 "id": {
-                    "pattern": "^0x[A-Fa-f0-9]{40}$",
+                    "pattern": "^0x[A-Fa-f0-9]{64}-[0-9]+$",
                     "type": "string"
                 }
             }
@@ -532,7 +539,8 @@ const REMOVE_ADMIN_ROLE_schema = {
         },
         "args": {
             "required": [
-                "id"
+                "forum",
+                "user"
             ],
             "type": "object",
             "properties": {

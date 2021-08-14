@@ -1,4 +1,4 @@
-const { validate } = require("../index.js")
+import { validate } from "../index"
 
 const badData = {
   foo: 1,

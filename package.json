@@ -8,9 +8,10 @@
   "private": true,
   "engines": { "node": "~14.17.0" },
   "workspaces": [
+    "client",
     "json-schema",
-    "subgraph",
-    "poster"
+    "poster",
+    "subgraph"
   ],
   "scripts": {
     "up": "yarn docker-up && yarn poster-deploy-local && yarn subgraph-up",

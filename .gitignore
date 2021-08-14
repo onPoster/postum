@@ -4,8 +4,6 @@ node_modules
 poster/artifacts
 poster/artifacts/*
 poster/cache
-poster/typechain
-poster/typechain/*
 
 subgraph/generated
 subgraph/generated/*

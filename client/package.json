@@ -1,0 +1,18 @@
+{
+  "name": "@postum/client",
+  "version": "0.0.1",
+  "description": "Client for interacting with Postum contract and subgraph",
+  "main": "index.ts",
+  "author": "Ezra Weller",
+  "license": "MIT",
+  "scripts": {
+    "test": "ts-node test/*"
+  },
+  "dependencies": {
+    "@postum/json-schema": "0.0.1",
+    "ajv": "^8.6.2",
+    "ethers": "^5.4.4",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.3"
+  }
+}
