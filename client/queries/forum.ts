@@ -1,4 +1,4 @@
-import { querySubgraph } from "."
+import { querySubgraph, Forum } from "."
 
 export async function allForums(pageSize: number, pageIndex: number) {
   const skip = pageSize * pageIndex
@@ -48,5 +48,6 @@ export async function allForums(pageSize: number, pageIndex: number) {
       }
     }
   }`
-  return (await querySubgraph(query)).data.forums
+  const forums: Forum[] = (await querySubgraph(query)).data.forums
+  return forums
 }

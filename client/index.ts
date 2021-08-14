@@ -4,7 +4,8 @@
  * - functions to query the subgraph 
  */
 
-import * as mutations from "./mutations"
-import * as queries from "./queries"
+import * as mutate from "./mutations"
+import * as query from "./queries"
 
-export { mutations, queries }
+export { Forum, Category, Thread, Post, AdminRole, User } from "./queries"
+export default { mutate, query }

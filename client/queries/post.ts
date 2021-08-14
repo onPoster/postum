@@ -1,4 +1,4 @@
-import { querySubgraph } from "."
+import { querySubgraph, Post } from "."
 
 export async function postsByThread(
   thread: string,
@@ -23,7 +23,8 @@ export async function postsByThread(
       deleted
     }
   }`
-  return (await querySubgraph(query)).data.posts
+  const posts: Post[] = (await querySubgraph(query)).data.posts
+  return posts
 }
 
 export async function postsByAuthor(
@@ -65,7 +66,8 @@ export async function postsByAuthor(
       deleted
     }
   }`
-  return (await querySubgraph(query)).data.posts
+  const posts: Post[] = (await querySubgraph(query)).data.posts
+  return posts
 }
 
 export async function postsBySearch(
@@ -107,7 +109,8 @@ export async function postsBySearch(
       deleted
     }
   }`
-  return (await querySubgraph(query)).data.posts
+  const posts: Post[] = (await querySubgraph(query)).data.posts
+  return posts
 }
 
 /*

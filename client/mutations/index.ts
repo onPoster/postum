@@ -9,7 +9,6 @@ const poster = new ethers.Contract(
 
 export async function post(content: POSTUM_ACTION, signer: ethers.Signer) {
   validate(content)
-  console.log("posting new:", content)
   const userPoster = poster.connect(signer)
   await userPoster.post(JSON.stringify(content))
 }

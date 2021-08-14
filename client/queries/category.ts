@@ -1,4 +1,4 @@
-import { querySubgraph } from "."
+import { querySubgraph, Category } from "."
 
 export async function categoriesByForum(
   forum: string,
@@ -7,17 +7,18 @@ export async function categoriesByForum(
 ) {
   const skip = pageSize * pageIndex
   const query = `{
-    categories(forum: ${forum}, first: ${pageSize}, skip: ${skip}) {
+    categories(forum: "${forum}", first: "${pageSize}", skip: "${skip}") {
       id
       title
       description
       forum { id }
-      threads(first: 5) {
+      threads(first: "5") {
         id
         author { id }
-        title 
+        title
       }
     }
   }`
-  return (await querySubgraph(query)).data.categories
+  const categories: Category[] = (await querySubgraph(query)).data.categories
+  return categories
 }

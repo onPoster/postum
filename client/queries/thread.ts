@@ -1,4 +1,4 @@
-import { querySubgraph } from "."
+import { querySubgraph, Thread } from "."
 
 export async function threadsByForum(
   forum: string,
@@ -22,7 +22,8 @@ export async function threadsByForum(
       }
     }
   }`
-  return (await querySubgraph(query)).data.threads
+  const threads: Thread[] = (await querySubgraph(query)).data.threads
+  return threads
 }
 
 export async function threadsByAuthor(
@@ -53,5 +54,6 @@ export async function threadsByAuthor(
       }
     }
   }`
-  return (await querySubgraph(query)).data.threads
+  const threads: Thread[] = (await querySubgraph(query)).data.threads
+  return threads
 }

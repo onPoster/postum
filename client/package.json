@@ -6,12 +6,21 @@
   "author": "Ezra Weller",
   "license": "MIT",
   "scripts": {
-    "test": "ts-node test/test"
+    "test": "mocha -r ts-node/register test/mutations/*"
   },
   "dependencies": {
     "@postum/json-schema": "0.0.1",
     "ajv": "^8.6.2",
-    "ethers": "^5.4.4",
+    "chai": "^4.3.4",
+    "ethers": "^5.4.4"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.21",
+    "@types/chai-as-promised": "^7.1.4",
+    "@types/mocha": "^9.0.0",
+    "chai": "^4.3.4",
+    "chai-as-promised": "^7.1.1",
+    "mocha": "^9.0.3",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.3"
   }

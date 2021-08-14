@@ -18,7 +18,7 @@ import { REMOVE_ADMIN_ROLE } from "./generated/types/REMOVE_ADMIN_ROLE"
 const validate = (json) => {
   const res = ajvValidate(json)
   if(!res) { 
-    console.error("JSON Schema validation failed:", ajvValidate)
+    // console.error("JSON Schema validation failed:", ajvValidate)
     throw new Error("Invalid JSON")
   }
   return res
