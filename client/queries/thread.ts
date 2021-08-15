@@ -13,7 +13,7 @@ export async function threadsByForum(
       title
       forum { id }
       category { id }
-      posts(first: ${pageSize})) {
+      posts(first: ${pageSize}) {
         id
         author { id }
         content

@@ -5,6 +5,8 @@ import * as schema from "@postum/json-schema"
 import client, { Post, Thread, Forum } from "../../."
 chai.use(chaiAsPromised)
 
+// ==== mutations ====
+
 export async function newForum(signer: ethers.Signer): Promise<schema.CREATE_FORUM> {
   const title: string = Date.now().toString() + " forum title"
   const newForum: schema.CREATE_FORUM = {
@@ -47,6 +49,8 @@ export async function newPost(signer: ethers.Signer, thread: Thread): Promise<sc
   return newPost
 }
 
+// ==== queries ====
+
 export async function findForum(title: string): Promise<Forum> {
   const forums = await client.query.allForums(1000, 0)
   console.log(forums)
@@ -59,4 +63,33 @@ export async function findForum(title: string): Promise<Forum> {
   })
   if (res == false) { assert.equal(res, true, "no forum found") }
   return res as Forum
+}
+
+export async function findThreadInForum(title: string, forum: Forum): Promise<Thread> {
+  const threads = await client.query.threadsByForum(forum.id, 1000, 0)
+  console.log(threads)
+  let res: Thread | boolean = false
+  threads.forEach(thread => {
+    console.log(thread.title, title)
+    if (thread.title == title) {
+      res = thread
+    }
+  })
+  if (res == false) { assert.equal(res, true, "no thread found") }
+  console.log("thread posts", (res as Thread).posts)
+  return res as Thread
+}
+
+export async function findPostInThread(content: string, thread: Thread): Promise<Post> {
+  const posts = await client.query.postsByThread(thread.id, 1000, 0)
+  console.log(posts)
+  let res: Post | boolean = false
+  posts.forEach(post => {
+    console.log(post.content, content)
+    if (post.content == content) {
+      res = post
+    }
+  })
+  if (res == false) { assert.equal(res, true, "no post found") }
+  return res as Post
 }

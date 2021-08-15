@@ -352,7 +352,7 @@ const CREATE_POST_schema = {
             "action": "CREATE_POST",
             "args": {
                 "thread": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-                "reply_to_post": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA-5",
+                "reply_to_post": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
                 "content": "Post content"
             }
         }
@@ -379,7 +379,7 @@ const CREATE_POST_schema = {
                     "type": "string"
                 },
                 "reply_to_post": {
-                    "pattern": "^0x[A-Fa-f0-9]{64}-[0-9]+$",
+                    "pattern": "^0x[A-Fa-f0-9]{64}$",
                     "type": "string"
                 },
                 "content": {
@@ -398,7 +398,7 @@ const EDIT_POST_schema = {
         {
             "action": "EDIT_POST",
             "args": {
-                "id": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA-1234",
+                "id": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
                 "content": "Edited post content"
             }
         }
@@ -422,7 +422,7 @@ const EDIT_POST_schema = {
             "type": "object",
             "properties": {
                 "id": {
-                    "pattern": "^0x[A-Fa-f0-9]{64}-[0-9]+$",
+                    "pattern": "^0x[A-Fa-f0-9]{64}$",
                     "type": "string"
                 },
                 "content": {
@@ -441,7 +441,7 @@ const DELETE_POST_schema = {
         {
             "action": "DELETE_POST",
             "args": {
-                "id": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA-23",
+                "id": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
             }
         }
     ],
@@ -463,7 +463,7 @@ const DELETE_POST_schema = {
             "type": "object",
             "properties": {
                 "id": {
-                    "pattern": "^0x[A-Fa-f0-9]{64}-[0-9]+$",
+                    "pattern": "^0x[A-Fa-f0-9]{64}$",
                     "type": "string"
                 }
             }

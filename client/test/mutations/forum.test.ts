@@ -22,7 +22,7 @@ describe("Forum mutations:", function () {
 
   let signer: ethers.providers.JsonRpcSigner
 
-  beforeEach(async () => {
+  before(async () => {
     signer = await provider.getSigner()
   })
 

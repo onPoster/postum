@@ -6,7 +6,7 @@
   "author": "Ezra Weller",
   "license": "MIT",
   "scripts": {
-    "test": "mocha -r ts-node/register test/mutations/forum.test.ts"
+    "test": "mocha -r ts-node/register test/mutations/post.test.ts"
   },
   "dependencies": {
     "@postum/json-schema": "0.0.1",

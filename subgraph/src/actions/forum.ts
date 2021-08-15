@@ -11,12 +11,14 @@ export function createForum(event: NewPost, args: TypedMap<string, JSONValue>): 
   for(let i = 0; i < adminArray.length; i++) {
     let userId = adminArray[i].toString()
     let user = User.load(userId)
-    if (user == null) { user = new User(userId) }
+    if (user == null) { 
+      user = new User(userId)
+      user.save()
+    }
     let adminRole = new AdminRole(forum.id + '-' + user.id)
     adminRole.forum = forum.id
     adminRole.user = user.id
     adminRole.save()
-    user.save()
   }
 
   forum.save()

@@ -1,4 +1,4 @@
-import { JSONValue, TypedMap, store, log } from "@graphprotocol/graph-ts"
+import { JSONValue, JSONValueKind, TypedMap, store, log } from "@graphprotocol/graph-ts"
 import { NewPost } from "../../generated/Poster/Poster"
 import { Forum, Thread, User, Post } from "../../generated/schema"
 
@@ -7,8 +7,7 @@ export function createPost(event: NewPost, args: TypedMap<string, JSONValue>): v
   let thread = Thread.load(threadId)
   if (thread == null) { return }
 
-  let l = thread.posts.length
-  let postId = threadId + "-" + l.toString()
+  let postId = event.transaction.hash.toHexString()
   let post = new Post(postId)
 
   let authorId = event.transaction.from.toHexString()
@@ -18,6 +17,13 @@ export function createPost(event: NewPost, args: TypedMap<string, JSONValue>): v
     author.save()
   }
   post.author = author.id
+
+  let replyJSON = args.get("reply_to_post")
+  if (replyJSON.kind == JSONValueKind.STRING) {
+    let replyId = replyJSON.toString()
+    let replyToPost = Post.load(replyId)
+    if (replyToPost != null) { post.reply_to_post = replyId }
+  }
 
   post.content = args.get("content").toString()
   post.thread = threadId
