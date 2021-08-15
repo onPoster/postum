@@ -18,15 +18,18 @@ import client, { Post, Thread, Forum } from "../../."
 import { newForum, newThread, newPost, findForum, findThreadInForum, findPostInThread } from "./utils"
 chai.use(chaiAsPromised)
 
-function checkCreatePost(f1: schema.CREATE_POST, f2: Post) {
+function checkCreatePost(
+  f1: schema.CREATE_POST, 
+  f2: Post, 
+  authorAddress: string, 
+  thread: Thread
+) {
   assert.equal(f2.content, f1.args.content, "post content")
   assert(!!f2.id, "post id")
-  /*
-  f2.author
-  f2.deleted
-  f2.reply_to_post
-  f2.thread
-  */
+  assert.equal(f2.author.id, authorAddress.toLowerCase(), "post author")
+  assert(!f2.deleted, "post deleted")
+  assert.equal(f2.reply_to_post.id, thread.posts[0].id, "reply to post")
+  assert.equal(f2.thread.id, thread.id, "post thread")
 }
 
 describe("Post mutations:", function () {
@@ -55,7 +58,7 @@ describe("Post mutations:", function () {
       console.log("finding post")
       const post = await findPostInThread(createPost.args.content, thread)
       console.log("POST", post)
-      checkCreatePost(createPost, post)
+      checkCreatePost(createPost, post, await signer.getAddress(), thread)
     })
 
     it("fails with invalid inputs: admins", async () => {
