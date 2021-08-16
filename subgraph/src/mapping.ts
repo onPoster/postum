@@ -27,65 +27,64 @@ import {
 export function handleNewPost(event: NewPost): void {
   let bytes = stringToBytes(event.params.content)
   let result = json.try_fromBytes(bytes)
-  if (result.isError) { return }
+  if (result.isError) { 
+    log.warning("Failed to parse JSON", [])
+    return 
+  }
   let object = result.value.toObject()
+  let action = object.get("action").toString()
+  let args = object.get("args").toObject()
 
-  let action = object.get("action")
-  let actionString = action.toString()
-
-  let args = object.get("args")
-  let argsObj = args.toObject()
-
-  if (actionString == "CREATE_FORUM") {
-    createForum(event, argsObj)
+  if (action == "CREATE_FORUM") {
+    createForum(event, args)
     return
 
-  } else if (actionString == "EDIT_FORUM") {
-    editForum(event, argsObj)
+  } else if (action == "EDIT_FORUM") {
+    editForum(event, args)
     return
 
-  } else if (actionString == "DELETE_FORUM") {
-    deleteForum(event, argsObj)
+  } else if (action == "DELETE_FORUM") {
+    deleteForum(event, args)
     return
     
-  } else if (actionString == "CREATE_CATEGORY") {
-    createCategory(event, argsObj)
+  } else if (action == "CREATE_CATEGORY") {
+    createCategory(event, args)
     return
     
-  } else if (actionString == "EDIT_CATEGORY") {
-    editCategory(event, argsObj)
+  } else if (action == "EDIT_CATEGORY") {
+    editCategory(event, args)
     return
     
-  } else if (actionString == "DELETE_CATEGORY") {
-    deleteCategory(event, argsObj)
+  } else if (action == "DELETE_CATEGORY") {
+    deleteCategory(event, args)
     return
     
-  } else if (actionString == "CREATE_THREAD") {
-    createThread(event, argsObj)
+  } else if (action == "CREATE_THREAD") {
+    createThread(event, args)
     return
     
-  } else if (actionString == "DELETE_THREAD") {
-    deleteThread(event, argsObj)
+  } else if (action == "DELETE_THREAD") {
+    deleteThread(event, args)
     return
     
-  } else if (actionString == "CREATE_POST") {
-    createPost(event, argsObj)
+  } else if (action == "CREATE_POST") {
+    createPost(event, args)
     return
     
-  } else if (actionString == "EDIT_POST") {
-    editPost(event, argsObj)
+  } else if (action == "EDIT_POST") {
+    editPost(event, args)
     return
     
-  } else if (actionString == "DELETE_POST") {
-    deletePost(event, argsObj)
+  } else if (action == "DELETE_POST") {
+    deletePost(event, args)
     return
     
-  } else if (actionString == "GRANT_ADMIN_ROLE") {
-    grantAdminRole(event, argsObj)
+  } else if (action == "GRANT_ADMIN_ROLE") {
+    grantAdminRole(event, args)
     return
     
-  } else if (actionString == "REMOVE_ADMIN_ROLE") {
-    removeAdminRole(event, argsObj)
+  } else if (action == "REMOVE_ADMIN_ROLE") {
+    removeAdminRole(event, args)
     return
     
   }
@@ -98,7 +97,7 @@ function stringToBytes(str: string): Bytes {
     codePoints[i] = str.codePointAt(i)
   }
   log.info(
-    "string and bytes-to-string: {} {}",
+    "String and bytes-to-string: {} {}",
     [
       str,
       codePoints.toString()
@@ -106,4 +105,3 @@ function stringToBytes(str: string): Bytes {
   )
   return codePoints
 }
-

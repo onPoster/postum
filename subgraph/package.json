@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@postum/poster": "6.0.0",
-    "@graphprotocol/graph-cli": "0.20.1",
+    "@graphprotocol/graph-cli": "0.21.1",
     "@graphprotocol/graph-ts": "0.20.0",
     "@postum/json-schema": "0.0.1",
     "json-as": "^0.1.7"
