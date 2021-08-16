@@ -7,7 +7,7 @@
   "scripts": {
     "build": "hardhat compile",
     "test": "hardhat test",
-    "test-subgraph": "ts-node scripts/subgraph-test-tx.ts",
+    "test-local": "hardhat test --network localhost",
     "deploy": "hardhat run scripts/deploy.js",
     "deploy-local": "hardhat run scripts/deploy.js --network localhost"
   },

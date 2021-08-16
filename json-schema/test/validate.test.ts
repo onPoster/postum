@@ -1,5 +1,8 @@
 import { validate } from "../index"
 
+// These tests should confirm that validate behaves as expected for all schema types
+
+/*
 const badData = {
   foo: 1,
   bar: "abc"
@@ -18,3 +21,4 @@ const goodData = {
 
 console.log(validate(badData))
 console.log(validate(goodData))
+*/
