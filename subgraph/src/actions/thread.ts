@@ -1,16 +1,27 @@
-import { JSONValue, TypedMap, store, log, JSONValueKind, crypto } from "@graphprotocol/graph-ts"
+import { JSONValue, TypedMap, store, log, JSONValueKind } from "@graphprotocol/graph-ts"
 import { NewPost } from "../../generated/Poster/Poster"
 import { Forum, Category, Thread, User, Post } from "../../generated/schema"
 
 export function createThread(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let forumId = args.get("forum").toString()
+  let forumIdValue = args.get("forum")
+  if (forumIdValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'forum' field", [])
+    return 
+  }
+  let forumId = forumIdValue.toString()
   let forum = Forum.load(forumId)
   if (forum == null) { return }
 
   let id = event.transaction.hash.toHexString()
   let thread = new Thread(id)
   thread.forum = forumId
-  thread.title = args.get("title").toString()
+
+  let titleValue = args.get("title")
+  if (titleValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'title' field", [])
+    return 
+  }
+  thread.title = titleValue.toString()
 
   let authorId = event.transaction.from.toHexString()
   let author = User.load(authorId)
@@ -35,22 +46,37 @@ export function createThread(event: NewPost, args: TypedMap<string, JSONValue>):
   let postId = id
   let post = new Post(postId)
   post.author = author.id
-  log.info(
-    "post author: {}",
-    [ post.author ]
-  )
-  post.content = args.get("content").toString()
+
+  let contentValue = args.get("content")
+  if (contentValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'content' field", [])
+    return 
+  }
+  post.content = contentValue.toString()
+
   post.thread = id
   post.deleted = false
   post.save()
 }
 
 export function deleteThread(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let id = args.get("id").toString()
+  let idValue = args.get("id")
+  if (idValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'id' field", [])
+    return 
+  }
+  let id = idValue.toString()
+  
   let thread = Thread.load(id)
   if (thread == null) { return }
 
-  let forumId = args.get("forum").toString()
+  let forumIdValue = args.get("forum")
+  if (forumIdValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'forum' field", [])
+    return 
+  }
+  let forumId = forumIdValue.toString()
+
   let forum = Forum.load(forumId)
   if (forum == null) { return }
 

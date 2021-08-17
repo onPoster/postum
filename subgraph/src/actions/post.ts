@@ -3,7 +3,13 @@ import { NewPost } from "../../generated/Poster/Poster"
 import { Forum, Thread, User, Post } from "../../generated/schema"
 
 export function createPost(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let threadId = args.get("thread").toString()
+  let threadValue = args.get("thread")
+  if (threadValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'thread' field", [])
+    return 
+  }
+  let threadId = threadValue.toString()
+
   let thread = Thread.load(threadId)
   if (thread == null) { return }
 
@@ -25,18 +31,30 @@ export function createPost(event: NewPost, args: TypedMap<string, JSONValue>): v
     if (replyToPost != null) { post.reply_to_post = replyId }
   }
 
-  post.content = args.get("content").toString()
+  let contentValue = args.get("content")
+  if (contentValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'content' field", [])
+    return 
+  }
+  post.content = contentValue.toString()
+
   post.thread = threadId
   post.deleted = false
   post.save()
 }
 
 export function editPost(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let id = args.get("id").toString()
+  let idValue = args.get("id")
+  if (idValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'id' field", [])
+    return 
+  }
+  let id = idValue.toString()
+
   let post = Post.load(id)
   if (post == null) { return }
 
-  if (event.transaction.from.toHexString() == post.author) {
+  if (event.transaction.from.toHexString() != post.author) {
     log.error(
       "Permissions: {} not author of post {} (author: {})",
       [
@@ -48,12 +66,23 @@ export function editPost(event: NewPost, args: TypedMap<string, JSONValue>): voi
     return
   }
 
-  post.content = args.get("content").toString()
+  let contentValue = args.get("content")
+  if (contentValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'content' field", [])
+    return 
+  }
+  post.content = contentValue.toString()
+
   post.save()
 }
 
 export function deletePost(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let id = args.get("id").toString()
+  let idValue = args.get("id")
+  if (idValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'id' field", [])
+    return 
+  }
+  let id = idValue.toString()
   let post = Post.load(id)
   if (post == null) { return }
 
@@ -65,7 +94,7 @@ export function deletePost(event: NewPost, args: TypedMap<string, JSONValue>): v
 
   if (
     !forum.admin_roles.includes(event.transaction.from.toHexString()) ||
-    event.transaction.from.toHexString() == post.author
+    event.transaction.from.toHexString() != post.author
   ) {
     log.error(
       "Permissions: {} not an admin in forum {} or author of post {} (author: {})",

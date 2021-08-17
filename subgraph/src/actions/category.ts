@@ -1,9 +1,14 @@
-import { JSONValue, TypedMap, store, log } from "@graphprotocol/graph-ts"
+import { JSONValue, TypedMap, store, log, JSONValueKind } from "@graphprotocol/graph-ts"
 import { NewPost } from "../../generated/Poster/Poster"
 import { Forum, Category } from "../../generated/schema"
 
 export function createCategory(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let forumId = args.get("forum").toString()
+  let forumIdValue = args.get("forum")
+  if (forumIdValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'forum' field", [])
+    return 
+  }
+  let forumId = forumIdValue.toString()
   let forum = Forum.load(forumId)
   if (forum == null) { return }
 
@@ -21,14 +26,31 @@ export function createCategory(event: NewPost, args: TypedMap<string, JSONValue>
   let id = event.transaction.hash.toHexString()
   let category = new Category(id)
   category.forum = forumId
-  category.title = args.get("title").toString()
-  category.description = args.get("description").toString()
+
+  let titleValue = args.get("title")
+  if (titleValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'title' field", [])
+    return 
+  }
+  category.title = titleValue.toString()
+
+  let descriptionValue = args.get("description")
+  if (descriptionValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'description' field", [])
+    return 
+  }
+  category.description = descriptionValue.toString()
 
   category.save()
 }
 
 export function editCategory(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let id = args.get("id").toString()
+  let idValue = args.get("id")
+  if (idValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'id' field", [])
+    return 
+  }
+  let id = idValue.toString()
   let category = Category.load(id)
   if (category == null) { return }
 
@@ -44,14 +66,30 @@ export function editCategory(event: NewPost, args: TypedMap<string, JSONValue>):
     return
   }
 
-  category.title = args.get("title").toString()
-  category.description = args.get("description").toString()
+  let titleValue = args.get("title")
+  if (titleValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'title' field", [])
+    return 
+  }
+  category.title = titleValue.toString()
+  
+  let descriptionValue = args.get("description")
+  if (descriptionValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'description' field", [])
+    return 
+  }
+  category.description = descriptionValue.toString()
 
   category.save()
 }
 
 export function deleteCategory(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let id = args.get("id").toString()
+  let idValue = args.get("id")
+  if (idValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'id' field", [])
+    return 
+  }
+  let id = idValue.toString()
   let category = Category.load(id)
   if (category == null) { return }
 

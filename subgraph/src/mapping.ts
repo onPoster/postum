@@ -1,4 +1,4 @@
-import { json, Bytes, log } from "@graphprotocol/graph-ts"
+import { json, Bytes, log, ByteArray, JSONValueKind } from "@graphprotocol/graph-ts"
 import { NewPost } from "../generated/Poster/Poster"
 import {
   createForum,
@@ -25,15 +25,28 @@ import {
 } from "./actions/adminRole"
 
 export function handleNewPost(event: NewPost): void {
-  let bytes = stringToBytes(event.params.content)
-  let result = json.try_fromBytes(bytes)
+  let result = json.try_fromBytes(
+    ByteArray.fromUTF8(event.params.content) as Bytes
+  )
   if (result.isError) { 
     log.warning("Failed to parse JSON", [])
     return 
   }
+
   let object = result.value.toObject()
-  let action = object.get("action").toString()
-  let args = object.get("args").toObject()
+  let actionValue = object.get("action")
+  if (actionValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'action' field", [])
+    return 
+  }
+  let action = actionValue.toString()
+  
+  let argsValue = object.get("args")
+  if (argsValue.kind != JSONValueKind.OBJECT) { 
+    log.warning("Skipping post: missing valid Postum 'args' field", [])
+    return 
+  }
+  let args = argsValue.toObject()
 
   if (action == "CREATE_FORUM") {
     createForum(event, args)
@@ -88,20 +101,4 @@ export function handleNewPost(event: NewPost): void {
     return
     
   }
-}
-
-// If Poster content was Bytes, we wouldn't have to do this
-function stringToBytes(str: string): Bytes {
-  let codePoints = new Bytes(str.length)
-  for(let i = 0; i < str.length; i++) {
-    codePoints[i] = str.codePointAt(i)
-  }
-  log.info(
-    "String and bytes-to-string: {} {}",
-    [
-      str,
-      codePoints.toString()
-    ]
-  )
-  return codePoints
 }

@@ -1,9 +1,14 @@
-import { JSONValue, TypedMap, store, log } from "@graphprotocol/graph-ts"
+import { JSONValue, TypedMap, store, log, JSONValueKind } from "@graphprotocol/graph-ts"
 import { NewPost } from "../../generated/Poster/Poster"
 import { Forum, User, AdminRole } from "../../generated/schema"
 
 export function grantAdminRole(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let forumId = args.get("forum").toString()
+  let forumIdValue = args.get("forum")
+  if (forumIdValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'forum' field", [])
+    return 
+  }
+  let forumId = forumIdValue.toString()
   let forum = Forum.load(forumId)
   if (forum == null) { return }
 
@@ -18,7 +23,12 @@ export function grantAdminRole(event: NewPost, args: TypedMap<string, JSONValue>
     return
   }
 
-  let userId = args.get("user").toString()
+  let userIdValue = args.get("user")
+  if (userIdValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'user' field", [])
+    return 
+  }
+  let userId = userIdValue.toString()
   let user = User.load(userId)
   if (user == null) { 
     user = new User(userId) 
@@ -30,11 +40,21 @@ export function grantAdminRole(event: NewPost, args: TypedMap<string, JSONValue>
 }
 
 export function removeAdminRole(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let forumId = args.get("forum").toString()
+  let forumIdValue = args.get("forum")
+  if (forumIdValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'forum' field", [])
+    return 
+  }
+  let forumId = forumIdValue.toString()
   let forum = Forum.load(forumId)
   if (forum == null) { return }
 
-  let userId = args.get("user").toString()
+  let userIdValue = args.get("user")
+  if (userIdValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'user' field", [])
+    return 
+  }
+  let userId = userIdValue.toString()
   let user = User.load(userId)
   if (user == null) { return }
 

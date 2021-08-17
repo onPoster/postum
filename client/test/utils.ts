@@ -14,7 +14,7 @@ export function delay(ms: number) {
 // ==== mutations ====
 
 export async function newForum(signer: ethers.Signer): Promise<schema.CREATE_FORUM> {
-  const title: string = Date.now().toString() + " forum title"
+  const title: string = Date.now().toString() + " forum title 💖"
   const newForum: schema.CREATE_FORUM = {
     action: "CREATE_FORUM",
     args: {
@@ -27,8 +27,8 @@ export async function newForum(signer: ethers.Signer): Promise<schema.CREATE_FOR
 }
 
 export async function newThread(signer: ethers.Signer, forum: Forum): Promise<schema.CREATE_THREAD> {
-  const title: string = Date.now().toString() + " thread title"
-  const content: string = Date.now().toString() + " post content"
+  const title: string = Date.now().toString() + " thread title 💖"
+  const content: string = Date.now().toString() + " post content 💖"
   const newThread: schema.CREATE_THREAD = {
     action: "CREATE_THREAD",
     args: {

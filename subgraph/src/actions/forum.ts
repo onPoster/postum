@@ -1,13 +1,25 @@
-import { JSONValue, TypedMap, store, log } from "@graphprotocol/graph-ts"
+import { JSONValue, TypedMap, store, log, JSONValueKind } from "@graphprotocol/graph-ts"
 import { NewPost } from "../../generated/Poster/Poster"
 import { Forum, User, AdminRole } from "../../generated/schema"
 
 export function createForum(event: NewPost, args: TypedMap<string, JSONValue>): void {
   let id = event.transaction.hash.toHexString()
   let forum = new Forum(id)
-  forum.title = args.get("title").toString()
-  let admins = args.get("admins")
-  let adminArray = admins.toArray()
+
+  let titleValue = args.get("title")
+  if (titleValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'title' field", [])
+    return 
+  }
+  forum.title = titleValue.toString()
+
+  let adminsValue = args.get("admins")
+  if (adminsValue.kind != JSONValueKind.ARRAY) { 
+    log.warning("Skipping post: missing valid Postum 'admins' field", [])
+    return 
+  }
+  let adminArray = adminsValue.toArray()
+
   for(let i = 0; i < adminArray.length; i++) {
     let userId = adminArray[i].toString()
     let user = User.load(userId)
@@ -25,7 +37,12 @@ export function createForum(event: NewPost, args: TypedMap<string, JSONValue>): 
 }
 
 export function editForum(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let id = args.get("id").toString()
+  let idValue = args.get("id")
+  if (idValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'id' field", [])
+    return 
+  }
+  let id = idValue.toString()
   let forum = Forum.load(id)
   if (forum == null) { return }
 
@@ -40,13 +57,23 @@ export function editForum(event: NewPost, args: TypedMap<string, JSONValue>): vo
     return
   }
 
-  forum.title = args.get("title").toString()
+  let titleValue = args.get("title")
+  if (titleValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'title' field", [])
+    return 
+  }
+  forum.title = titleValue.toString()
 
   forum.save()
 }
 
 export function deleteForum(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let id = args.get("id").toString()
+  let idValue = args.get("id")
+  if (idValue.kind != JSONValueKind.STRING) { 
+    log.warning("Skipping post: missing valid Postum 'id' field", [])
+    return 
+  }
+  let id = idValue.toString()
   let forum = Forum.load(id)
   if (forum == null) { return }
 
