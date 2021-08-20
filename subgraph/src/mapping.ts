@@ -47,7 +47,10 @@ export function handleNewPost(event: NewPost): void {
     return 
   }
   let args = argsValue.toObject()
-
+  log.info(
+    "processing action: {}",
+    [action]
+  )
   if (action == "CREATE_FORUM") {
     createForum(event, args)
     return

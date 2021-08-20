@@ -1,6 +1,6 @@
 import { JSONValue, TypedMap, store, log, JSONValueKind } from "@graphprotocol/graph-ts"
 import { NewPost } from "../../generated/Poster/Poster"
-import { Forum, Category } from "../../generated/schema"
+import { Forum, Category, AdminRole } from "../../generated/schema"
 
 export function createCategory(event: NewPost, args: TypedMap<string, JSONValue>): void {
   let forumIdValue = args.get("forum")
@@ -12,12 +12,13 @@ export function createCategory(event: NewPost, args: TypedMap<string, JSONValue>
   let forum = Forum.load(forumId)
   if (forum == null) { return }
 
-  if (!forum.admin_roles.includes(event.transaction.from.toHexString())) {
+  let senderAdminRole = AdminRole.load(forum.id + "-" + event.transaction.from.toHexString())
+  if (senderAdminRole == null) {
     log.error(
       "Permissions: {} not an admin in forum {}",
       [
         event.transaction.from.toHexString(),
-        forumId
+        forum.id
       ]
     )
     return
@@ -55,7 +56,8 @@ export function editCategory(event: NewPost, args: TypedMap<string, JSONValue>):
   if (category == null) { return }
 
   let forum = Forum.load(category.forum)
-  if (!forum.admin_roles.includes(event.transaction.from.toHexString())) {
+  let senderAdminRole = AdminRole.load(forum.id + "-" + event.transaction.from.toHexString())
+  if (senderAdminRole == null) {
     log.error(
       "Permissions: {} not an admin in forum {}",
       [
@@ -94,7 +96,8 @@ export function deleteCategory(event: NewPost, args: TypedMap<string, JSONValue>
   if (category == null) { return }
 
   let forum = Forum.load(category.forum)
-  if (!forum.admin_roles.includes(event.transaction.from.toHexString())) {
+  let senderAdminRole = AdminRole.load(forum.id + "-" + event.transaction.from.toHexString())
+  if (senderAdminRole == null) {
     log.error(
       "Permissions: {} not an admin in forum {}",
       [

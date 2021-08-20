@@ -1,6 +1,6 @@
 import { JSONValue, TypedMap, store, log, JSONValueKind } from "@graphprotocol/graph-ts"
 import { NewPost } from "../../generated/Poster/Poster"
-import { Forum, Category, Thread, User, Post } from "../../generated/schema"
+import { Forum, AdminRole, Category, Thread, User, Post } from "../../generated/schema"
 
 export function createThread(event: NewPost, args: TypedMap<string, JSONValue>): void {
   let forumIdValue = args.get("forum")
@@ -80,7 +80,8 @@ export function deleteThread(event: NewPost, args: TypedMap<string, JSONValue>):
   let forum = Forum.load(forumId)
   if (forum == null) { return }
 
-  if (!forum.admin_roles.includes(event.transaction.from.toHexString())) {
+  let senderAdminRole = AdminRole.load(forum.id + "-" + event.transaction.from.toHexString())
+  if (senderAdminRole == null) {
     log.error(
       "Permissions: {} not an admin in forum {}",
       [

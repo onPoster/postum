@@ -46,12 +46,13 @@ export function editForum(event: NewPost, args: TypedMap<string, JSONValue>): vo
   let forum = Forum.load(id)
   if (forum == null) { return }
 
-  if (!forum.admin_roles.includes(event.transaction.from.toHexString())) {
+  let senderAdminRole = AdminRole.load(forum.id + "-" + event.transaction.from.toHexString())
+  if (senderAdminRole == null) {
     log.error(
       "Permissions: {} not an admin in forum {}",
       [
         event.transaction.from.toHexString(),
-        id
+        forum.id
       ]
     )
     return
@@ -77,12 +78,13 @@ export function deleteForum(event: NewPost, args: TypedMap<string, JSONValue>): 
   let forum = Forum.load(id)
   if (forum == null) { return }
 
-  if (!forum.admin_roles.includes(event.transaction.from.toHexString())) {
+  let senderAdminRole = AdminRole.load(forum.id + "-" + event.transaction.from.toHexString())
+  if (senderAdminRole == null) {
     log.error(
       "Permissions: {} not an admin in forum {}",
       [
         event.transaction.from.toHexString(),
-        id
+        forum.id
       ]
     )
     return

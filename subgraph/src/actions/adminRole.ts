@@ -12,7 +12,8 @@ export function grantAdminRole(event: NewPost, args: TypedMap<string, JSONValue>
   let forum = Forum.load(forumId)
   if (forum == null) { return }
 
-  if (!forum.admin_roles.includes(event.transaction.from.toHexString())) {
+  let senderAdminRole = AdminRole.load(forum.id + "-" + event.transaction.from.toHexString())
+  if (senderAdminRole == null) {
     log.error(
       "Permissions: {} not an admin in forum {}",
       [
@@ -36,6 +37,8 @@ export function grantAdminRole(event: NewPost, args: TypedMap<string, JSONValue>
   }
   let id = forum.id + "-" + user.id
   let adminRole = new AdminRole(id)
+  adminRole.forum = forum.id
+  adminRole.user = user.id
   adminRole.save()
 }
 
@@ -58,7 +61,8 @@ export function removeAdminRole(event: NewPost, args: TypedMap<string, JSONValue
   let user = User.load(userId)
   if (user == null) { return }
 
-  if (!forum.admin_roles.includes(event.transaction.from.toHexString())) {
+  let senderAdminRole = AdminRole.load(forum.id + "-" + event.transaction.from.toHexString())
+  if (senderAdminRole == null) {
     log.error(
       "Permissions: {} not an admin in forum {}",
       [

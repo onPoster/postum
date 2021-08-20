@@ -3,6 +3,7 @@ import chai, { assert, expect } from "chai"
 import chaiAsPromised from 'chai-as-promised'
 import * as schema from "@postum/json-schema"
 import client, { Post, Thread, Forum } from "../."
+import { AdminRole } from "../queries";
 chai.use(chaiAsPromised)
 
 export const provider = new ethers.providers.JsonRpcProvider()
@@ -19,11 +20,27 @@ export async function newForum(signer: ethers.Signer): Promise<schema.CREATE_FOR
     action: "CREATE_FORUM",
     args: {
       title,
-      admins: [await signer.getAddress()]
+      admins: [(await signer.getAddress()).toLowerCase()]
     }
   }
   await client.mutate.createForum(signer, newForum)
   return newForum
+}
+
+export async function newAdminRole(
+  signer: ethers.Signer, 
+  signer2: ethers.Signer, 
+  forum: Forum
+): Promise<schema.GRANT_ADMIN_ROLE> {
+  const newAdminRole: schema.GRANT_ADMIN_ROLE = {
+    action: "GRANT_ADMIN_ROLE",
+    args: {
+      forum: forum.id,
+      user: (await signer2.getAddress()).toLowerCase()
+    }
+  }
+  await client.mutate.grantAdminRole(signer, newAdminRole)
+  return newAdminRole
 }
 
 export async function newThread(signer: ethers.Signer, forum: Forum): Promise<schema.CREATE_THREAD> {
@@ -59,7 +76,7 @@ export async function newPost(signer: ethers.Signer, thread: Thread): Promise<sc
 
 export async function findForum(title: string): Promise<Forum> {
   const forums = await client.query.allForums(1000, 0)
-  let res: Forum | boolean = false
+  let res: Forum | false = false
   forums.forEach(forum => {
     if (forum.title == title) {
       res = forum
@@ -69,9 +86,23 @@ export async function findForum(title: string): Promise<Forum> {
   return res as Forum
 }
 
+export async function findAdminRole(adminRole: schema.GRANT_ADMIN_ROLE): Promise<AdminRole> {
+  const forums = await client.query.allForums(1000, 0)
+  let res: AdminRole | false = false
+  forums.forEach(forum => {
+    forum.admin_roles.forEach(ar => {
+      if (ar.user.id == adminRole.args.user) {
+        res = ar
+      }
+    })
+  })
+  if (res == false) { assert.equal(res, true, "no admin role found") }
+  return res as AdminRole
+}
+
 export async function findThreadInForum(title: string, forum: Forum): Promise<Thread> {
   const threads = await client.query.threadsByForum(forum.id, 1000, 0)
-  let res: Thread | boolean = false
+  let res: Thread | false = false
   threads.forEach(thread => {
     if (thread.title == title) {
       res = thread
@@ -83,7 +114,7 @@ export async function findThreadInForum(title: string, forum: Forum): Promise<Th
 
 export async function findPostInThread(content: string, thread: Thread): Promise<Post> {
   const posts = await client.query.postsByThread(thread.id, 1000, 0)
-  let res: Post | boolean = false
+  let res: Post | false = false
   posts.forEach(post => {
     if (post.content == content) {
       res = post
