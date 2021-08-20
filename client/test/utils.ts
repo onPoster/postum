@@ -2,7 +2,7 @@ import { ethers } from "ethers"
 import chai, { assert, expect } from "chai"
 import chaiAsPromised from 'chai-as-promised'
 import * as schema from "@postum/json-schema"
-import client, { Post, Thread, Forum } from "../."
+import client, { Forum, Category, Post, Thread } from "../."
 import { AdminRole } from "../queries";
 chai.use(chaiAsPromised)
 
@@ -41,6 +41,19 @@ export async function newAdminRole(
   }
   await client.mutate.grantAdminRole(signer, newAdminRole)
   return newAdminRole
+}
+
+export async function newCategory(signer: ethers.Signer, forum: Forum, title: string): Promise<schema.CREATE_CATEGORY> {
+  const newCategory: schema.CREATE_CATEGORY = {
+    action: "CREATE_CATEGORY",
+    args: {
+      forum: forum.id,
+      title,
+      description: "Stock description 🏐"
+    }
+  }
+  await client.mutate.createCategory(signer, newCategory)
+  return newCategory
 }
 
 export async function newThread(signer: ethers.Signer, forum: Forum): Promise<schema.CREATE_THREAD> {
@@ -98,6 +111,18 @@ export async function findAdminRole(adminRole: schema.GRANT_ADMIN_ROLE): Promise
   })
   if (res == false) { assert.equal(res, true, "no admin role found") }
   return res as AdminRole
+}
+
+export async function findCategory(title: string, forum: Forum): Promise<Category> {
+  const categories = await client.query.categoriesByForum(forum.id, 100, 0)
+  let res: Category | false = false
+  categories.forEach(cat => {
+    if (cat.title == title) {
+      res = cat
+    }
+  })
+  if (res == false) { assert.equal(res, true, "no category found") }
+  return res as Category
 }
 
 export async function findThreadInForum(title: string, forum: Forum): Promise<Thread> {
