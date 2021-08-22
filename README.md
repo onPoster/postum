@@ -1,5 +1,5 @@
 # POSTUM
-*Decentralized protocol for forums implemented on the Poster contract*
+### *Decentralized protocol for forums implemented on the Poster contract*
 
 Postum is a working title for a decentralized forum product built on the [Poster smart contract](https://github.com/ETHPoster). The goal is to create a product that:
 - Lets anyone create/edit/delete forums with admins, categories, threads, and posts
@@ -62,6 +62,6 @@ Should have:
 - The Poster contract should possibly take and emit Bytes instead of a string for greater efficiency (may not matter since it looks like the large majority of the costs will come from the base Ethereum transaction fee, which won't change, and The Graph fees, which are based on queries, I think).
 
 ### Questions
-Because decentralization is an important feature of this project, Postum (and all Poster apps) should use The Graph's network service, which charges fees. Will the combination of a Ethereum layer 2s and The Graph fees be cheap enough for social media applications to succeed?
+- Because decentralization is an important feature of this project, Postum (and all Poster apps) should use The Graph's network service, which charges fees. Will the combination of Ethereum layer 2s and The Graph fees be cheap enough for social media applications to succeed? Based on the way the graph network [calculates fees](https://thegraph.com/blog/the-graph-grt-token-economics), this seems hard to estimate accurately before trying it.
 
-If this is a successful framework, can we create a Poster app template that lets users define JSON schema actions and graphql database entities, then generates much of the needed boilerplate code for you?
+- If this is a successful framework, can we create a Poster app template that lets users define JSON schema actions and graphql database entities, then generates much of the needed boilerplate code for you?
