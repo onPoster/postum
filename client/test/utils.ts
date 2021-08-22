@@ -56,9 +56,13 @@ export async function newCategory(signer: ethers.Signer, forum: Forum, title: st
   return newCategory
 }
 
-export async function newThread(signer: ethers.Signer, forum: Forum): Promise<schema.CREATE_THREAD> {
-  const title: string = Date.now().toString() + " thread title 💖"
-  const content: string = Date.now().toString() + " post content 💖"
+export async function newThread(
+  signer: ethers.Signer, 
+  title: string, 
+  forum: Forum,
+  category: Category | null
+): Promise<schema.CREATE_THREAD> {
+  const content: string = Date.now().toString() + " post content from NEW THREAD 💖"
   const newThread: schema.CREATE_THREAD = {
     action: "CREATE_THREAD",
     args: {
@@ -67,12 +71,16 @@ export async function newThread(signer: ethers.Signer, forum: Forum): Promise<sc
       content
     }
   }
+  if (category) { 
+    newThread.args.category = category.id 
+    newThread.args.content += "W/ CAT"
+  }
   await client.mutate.createThread(signer, newThread)
   return newThread
 }
 
 export async function newPost(signer: ethers.Signer, thread: Thread): Promise<schema.CREATE_POST> {
-  const content: string = Date.now().toString() + " post content"
+  const content: string = Date.now().toString() + " post content from NEW POST"
   const newPost: schema.CREATE_POST = {
     action: "CREATE_POST",
     args: {

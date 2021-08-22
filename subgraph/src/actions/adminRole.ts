@@ -13,7 +13,7 @@ export function grantAdminRole(event: NewPost, args: TypedMap<string, JSONValue>
   if (forum == null) { return }
 
   let senderAdminRole = AdminRole.load(forum.id + "-" + event.transaction.from.toHexString())
-  if (senderAdminRole == null) {
+  if (senderAdminRole == null || senderAdminRole.deleted == true) {
     log.error(
       "Permissions: {} not an admin in forum {}",
       [
@@ -39,6 +39,7 @@ export function grantAdminRole(event: NewPost, args: TypedMap<string, JSONValue>
   let adminRole = new AdminRole(id)
   adminRole.forum = forum.id
   adminRole.user = user.id
+  adminRole.deleted = false
   adminRole.save()
 }
 
@@ -49,8 +50,6 @@ export function removeAdminRole(event: NewPost, args: TypedMap<string, JSONValue
     return 
   }
   let forumId = forumIdValue.toString()
-  let forum = Forum.load(forumId)
-  if (forum == null) { return }
 
   let userIdValue = args.get("user")
   if (userIdValue.kind != JSONValueKind.STRING) { 
@@ -58,20 +57,22 @@ export function removeAdminRole(event: NewPost, args: TypedMap<string, JSONValue
     return 
   }
   let userId = userIdValue.toString()
-  let user = User.load(userId)
-  if (user == null) { return }
 
-  let senderAdminRole = AdminRole.load(forum.id + "-" + event.transaction.from.toHexString())
-  if (senderAdminRole == null) {
+  let senderAdminRole = AdminRole.load(forumId + "-" + event.transaction.from.toHexString())
+  if (senderAdminRole == null || senderAdminRole.deleted == true) {
     log.error(
       "Permissions: {} not an admin in forum {}",
       [
         event.transaction.from.toHexString(),
-        forum.id
+        forumId
       ]
     )
     return
   }
 
-  store.remove("AdminRole", forum.id + "-" + user.id)
+  let adminRole = AdminRole.load(forumId + "-" + userId)
+  if (adminRole == null) { return }
+
+  adminRole.deleted = true
+  adminRole.save()
 }

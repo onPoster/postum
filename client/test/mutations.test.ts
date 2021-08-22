@@ -1,41 +1,3 @@
-/**
- * TODO spec tests:
- * 
- * mutations
- *  - for all
- *  - valid inputs produce expected result
- *  - invalid inputs do not
- * 
- * - Forum
- *  - createForum
- *  - editForum
- *    - admin only
- *  - deleteForum 
- *    - admin only
- * - Category
- *  - createCategory
- *    - admin only
- *  - editCategory
- *    - admin only
- *  - deleteCategory
- *    - admin only
- * - Thread
- *  - createThread
- *  - deleteThread
- *    - admin only
- * - Post
- *  - createPost
- *  - editPost
- *    - post author only
- *  - deletePost
- *    - admin or post author only
- * - AdminRole
- *  - grantAdminRole
- *    - admin only
- *  - removeAdminRole
- *    - admin only
- */
-
 import chai, { assert, expect } from "chai"
 import chaiAsPromised from 'chai-as-promised'
 import * as schema from "@postum/json-schema"
@@ -56,6 +18,8 @@ import {
 } from "./utils"
 import client, { Forum, AdminRole, Category, Thread, Post } from ".."
 chai.use(chaiAsPromised)
+
+const GRAPH_DELAY = 1500
 
 function checkCreateForum(f1: schema.CREATE_FORUM, f2: Forum) {
   assert.equal(f2.title, f1.args.title, "forum title")
@@ -121,18 +85,42 @@ function checkEditCategory(c1: schema.EDIT_CATEGORY, c2: Category, c3: Category)
   assert.deepEqual(c2.threads, c3.threads, "category threads")
 }
 
+function checkCreateThread(t1: schema.CREATE_THREAD, t2: Thread, address: string) {
+  assert.equal(t2.author.id, address, "thread author")
+  if (t1.args.category) {
+    assert.equal(t2.category.id, t1.args.category, "thread category")
+  } else {
+    assert.isFalse(!!t2.category, "thread category")
+  }
+  assert.equal(t2.forum.id, t1.args.forum, "thread forum")
+  assert.exists(t2.id, "thread id")
+  assert.equal(t2.posts.length, 1, "thread posts")
+  assert.equal(t2.title, t1.args.title, "thread title")
+}
+
 function checkCreatePost(
-  f1: schema.CREATE_POST, 
-  f2: Post, 
+  p1: schema.CREATE_POST, 
+  p2: Post, 
   authorAddress: string, 
   thread: Thread
 ) {
-  assert.equal(f2.content, f1.args.content, "post content")
-  assert.exists(f2.id, "post id")
-  assert.equal(f2.author.id, authorAddress.toLowerCase(), "post author")
-  assert.isFalse(f2.deleted, "post deleted")
-  assert.equal(f2.reply_to_post.id, thread.posts[0].id, "reply to post")
-  assert.equal(f2.thread.id, thread.id, "post thread")
+  assert.equal(p2.content, p1.args.content, "post content")
+  assert.exists(p2.id, "post id")
+  assert.equal(p2.author.id, authorAddress.toLowerCase(), "post author")
+  assert.isFalse(p2.deleted, "post deleted")
+  assert.equal(p2.reply_to_post.id, thread.posts[0].id, "reply to post")
+  assert.equal(p2.thread.id, thread.id, "post thread")
+}
+
+function checkEditPost(p1: Post, p2: schema.EDIT_POST, p3: Post) {
+  assert.equal(p3.author.id, p1.author.id, "post author")
+  assert.equal(p3.content, p2.args.content, "post content")
+  assert.equal(p3.deleted, p1.deleted, "post deleted")
+  if (p1.reply_to_post) {
+    assert.equal(p3.reply_to_post.id, p1.reply_to_post.id, "post reply")
+  }
+  assert.equal(p3.id, p1.id, "post id")
+  assert.equal(p3.thread.id, p1.thread.id, "post thread")
 }
 
 describe("Forum mutations:", function () {
@@ -150,7 +138,7 @@ describe("Forum mutations:", function () {
   describe("createForum", function () {
     it("makes a new forum", async () => {
       const createForum = await newForum(signer)
-      await delay(5000)
+      await delay(GRAPH_DELAY)
       forum = await findForum(createForum.args.title)
       checkCreateForum(createForum, forum)
     })
@@ -180,7 +168,7 @@ describe("Forum mutations:", function () {
         }
       }
       await client.mutate.editForum(signer, editForum)
-      await delay(5000)
+      await delay(GRAPH_DELAY)
       const editedForum = await findForum(title)
       checkEditForum(forum, editForum, editedForum)
       forum = editedForum
@@ -210,7 +198,7 @@ describe("Forum mutations:", function () {
         }
       }
       await client.mutate.editForum(signer3, editForum)
-      await delay(5000)
+      await delay(GRAPH_DELAY)
       await expect(findForum(title))
         .to.be.rejectedWith(Error)
     })
@@ -219,7 +207,7 @@ describe("Forum mutations:", function () {
   describe("deleteForum", function () {
     it("deletes a forum", async () => {
       const createForum = await newForum(signer)
-      await delay(5000)
+      await delay(GRAPH_DELAY)
       const forum2 = await findForum(createForum.args.title)
       checkCreateForum(createForum, forum2)
       const deleteForum: schema.DELETE_FORUM = {
@@ -229,7 +217,7 @@ describe("Forum mutations:", function () {
         }
       }
       await client.mutate.deleteForum(signer, deleteForum)
-      await delay(5000)
+      await delay(GRAPH_DELAY)
       await expect(findForum(forum2.title))
         .to.be.rejectedWith(Error)
     })
@@ -254,18 +242,20 @@ describe("Forum mutations:", function () {
         }
       }
       await client.mutate.deleteForum(signer3, deleteForum)
-      await delay(5000)
+      await delay(GRAPH_DELAY)
       const returnedForum = await findForum(forum.title)
       assert.deepEqual(forum, returnedForum, "forum")
     })
   })
 
   describe("AdminRole mutations:", function () {
+    let signer2: ethers.Signer
+
     describe("grantAdminRole", function () {
       it("creates a new admin role", async () => {
-        const signer2 = await provider.getSigner(1)
+        signer2 = await provider.getSigner(1)
         const grantAdminRole = await newAdminRole(signer, signer2, forum)
-        await delay(5000)
+        await delay(GRAPH_DELAY)
         const foundAdminRole = await findAdminRole(grantAdminRole)
         checkGrantAdminRole(grantAdminRole, foundAdminRole, forum)
       })
@@ -297,7 +287,7 @@ describe("Forum mutations:", function () {
       it("is admin only", async () => {
         const signer3 = await provider.getSigner(2)
         const grantAdminRole = await newAdminRole(signer3, signer3, forum)
-        await delay(5000)
+        await delay(GRAPH_DELAY)
         await expect(findAdminRole(grantAdminRole))
           .to.be.rejectedWith(Error)
       })
@@ -306,7 +296,7 @@ describe("Forum mutations:", function () {
     describe("removeAdminRole", function () {
       it("removes an admin role", async () => {
         forum = await findForum(forum.title)
-        const address = forum.admin_roles[0].user.id.toLowerCase()
+        const address = (await signer2.getAddress()).toLowerCase()
         const removeAdminRole: schema.REMOVE_ADMIN_ROLE = {
           action: "REMOVE_ADMIN_ROLE",
           args: {
@@ -315,14 +305,14 @@ describe("Forum mutations:", function () {
           }
         }
         await client.mutate.removeAdminRole(signer, removeAdminRole)
-        await delay(5000)
+        await delay(GRAPH_DELAY)
         const foundForum = await findForum(forum.title)
         checkRemoveAdminRole(forum, foundForum, removeAdminRole)
         forum = foundForum
       })
 
       it("fails with invalid inputs (forum id)", async () => {
-        const address = forum.admin_roles[0].user.id.toLowerCase()
+        const address = (await signer.getAddress()).toLowerCase()
         const removeAdminRole: schema.REMOVE_ADMIN_ROLE = {
           action: "REMOVE_ADMIN_ROLE",
           args: {
@@ -335,7 +325,7 @@ describe("Forum mutations:", function () {
       })
 
       it("fails with invalid inputs (user id)", async () => {
-        const address = forum.admin_roles[0].user.id.toLowerCase()
+        const address = (await signer.getAddress()).toLowerCase()
         const removeAdminRole: schema.REMOVE_ADMIN_ROLE = {
           action: "REMOVE_ADMIN_ROLE",
           args: {
@@ -349,7 +339,7 @@ describe("Forum mutations:", function () {
   
       it("is admin only", async () => {
         const signer3 = await provider.getSigner(2)
-        const address = forum.admin_roles[0].user.id.toLowerCase()
+        const address = (await signer.getAddress()).toLowerCase()
         const removeAdminRole: schema.REMOVE_ADMIN_ROLE = {
           action: "REMOVE_ADMIN_ROLE",
           args: {
@@ -358,22 +348,24 @@ describe("Forum mutations:", function () {
           }
         }
         await client.mutate.removeAdminRole(signer3, removeAdminRole)
-        await delay(5000)
+        await delay(GRAPH_DELAY)
         const foundForum = await findForum(forum.title)
         assert.deepEqual(forum, foundForum)
       })
     })
 
     describe("Category mutations:", function () {
+      let category2: Category
+
       describe("createCategory", function () {
         it("makes a new category", async () => {
           const cat1 = await newCategory(signer, forum, Date.now().toString() + " category title 💖")
           const cat2 = await newCategory(signer, forum, Date.now().toString() + " category title 2 💖")
-          await delay(5000)
+          await delay(GRAPH_DELAY)
           category = await findCategory(cat1.args.title, forum)
-          const foundCat2 = await findCategory(cat2.args.title, forum)
+          category2 = await findCategory(cat2.args.title, forum)
           checkCreateCategory(cat1, category)
-          checkCreateCategory(cat2, foundCat2)
+          checkCreateCategory(cat2, category2)
         })
     
         it("fails with invalid inputs (forum id)", async () => {
@@ -392,7 +384,7 @@ describe("Forum mutations:", function () {
         it("is admin only", async () => {
           const signer2 = await provider.getSigner(1)
           const createCategory = await newCategory(signer2, forum, Date.now().toString() + " category title 2 💖")
-          await delay(5000)
+          await delay(GRAPH_DELAY)
           await expect(findCategory(createCategory.args.title, forum))
             .to.be.rejectedWith(Error)
         })
@@ -409,7 +401,7 @@ describe("Forum mutations:", function () {
             }
           }
           await client.mutate.editCategory(signer, editCategory)
-          await delay(5000)
+          await delay(GRAPH_DELAY)
           const foundCat = await findCategory(editCategory.args.title, forum)
           checkEditCategory(editCategory, category, foundCat)
           category = foundCat
@@ -439,109 +431,300 @@ describe("Forum mutations:", function () {
             }
           }
           await client.mutate.editCategory(signer2, editCategory)
-          await delay(5000)
+          await delay(GRAPH_DELAY)
           await expect(findCategory(editCategory.args.title, forum))
             .to.be.rejectedWith(Error)
         })
       })
 
       describe("deleteCategory", function () {
-        it.skip("deletes a category", async () => {
-
+        it("deletes a category", async () => {
+          assert.exists(await findCategory(category2.title, forum))
+          const deleteCategory: schema.DELETE_CATEGORY = {
+            action: "DELETE_CATEGORY",
+            args: {
+              id: category2.id
+            }
+          }
+          await client.mutate.deleteCategory(signer, deleteCategory)
+          await delay(GRAPH_DELAY)
+          await expect(findCategory(category2.title, forum))
+            .to.be.rejectedWith(Error)
         })
     
-        it.skip("fails with invalid inputs", async () => {
-    
+        it("fails with invalid inputs (category id)", async () => {
+          const deleteCategory: schema.DELETE_CATEGORY = {
+            action: "DELETE_CATEGORY",
+            args: {
+              id: category.id + "v"
+            }
+          }
+          await expect(client.mutate.deleteCategory(signer, deleteCategory))
+            .to.be.rejectedWith(Error)
         })
     
-        it.skip("is admin only", async () => {
-    
+        it("is admin only", async () => {
+          const signer2 = await provider.getSigner(1)
+          const beforeCat = await findCategory(category.title, forum)
+          const deleteCategory: schema.DELETE_CATEGORY = {
+            action: "DELETE_CATEGORY",
+            args: {
+              id: category.id
+            }
+          }
+          await client.mutate.deleteCategory(signer2, deleteCategory)
+          await delay(GRAPH_DELAY)
+          const afterCat = await findCategory(category.title, forum)
+          assert.deepEqual(beforeCat, afterCat)
         })
       })
 
       describe("Thread mutations:", async () => {
-        before(async () => {
-          // create Category
-        })
+        let thread2: Thread
 
         describe("createThread", function () {
-          it.skip("deletes a thread", async () => {
+          it("creates a thread w/ category", async () => {
+            const title = Date.now().toString() + " thread title w/ CAT💖"
+            const createThread = await newThread(signer, title, forum, category)
+            await delay(GRAPH_DELAY)
+            const foundThread = await findThreadInForum(title, forum)
+            const address = (await signer.getAddress()).toLowerCase()
+            checkCreateThread(createThread, foundThread, address)
+            thread = foundThread
+          })
 
+          it("creates a thread w/out category", async () => {
+            const title = Date.now().toString() + " thread title 💖"
+            const createThread = await newThread(signer, title, forum, null)
+            await delay(GRAPH_DELAY)
+            const foundThread = await findThreadInForum(title, forum)
+            const address = (await signer.getAddress()).toLowerCase()
+            checkCreateThread(createThread, foundThread, address)
+            thread2 = foundThread
           })
       
-          it.skip("fails with invalid inputs", async () => {
-      
+          it("fails with invalid inputs (forum id)", async () => {
+            const createThread: schema.CREATE_THREAD = {
+              action: "CREATE_THREAD",
+              args: {
+                forum: "0x1235jhdf",
+                category: category.id,
+                title: "Title",
+                content: "Content"
+              }
+            }
+            await expect(client.mutate.createThread(signer, createThread))
+              .to.be.rejectedWith(Error)
+          })
+
+          it("fails with invalid inputs (category id)", async () => {
+            const createThread: schema.CREATE_THREAD = {
+              action: "CREATE_THREAD",
+              args: {
+                forum: forum.id,
+                category: category.id + "5",
+                title: "Title",
+                content: "Content"
+              }
+            }
+            await expect(client.mutate.createThread(signer, createThread))
+              .to.be.rejectedWith(Error)
           })
         })
 
         describe("deleteThread", function () {
-          it.skip("deletes a thread", async () => {
-
+          it("deletes a thread", async () => {
+            assert.exists(await findThreadInForum(thread2.title, forum))
+            const deleteThread: schema.DELETE_THREAD = {
+              action: "DELETE_THREAD",
+              args: {
+                id: thread2.id
+              }
+            }
+            await client.mutate.deleteThread(signer, deleteThread)
+            await delay(GRAPH_DELAY)
+            await expect(findThreadInForum(thread2.title, forum))
+              .to.be.rejectedWith(Error)
           })
       
-          it.skip("fails with invalid inputs", async () => {
-      
+          it("fails with invalid inputs (thread id)", async () => {
+            assert.exists(await findThreadInForum(thread.title, forum))
+            const deleteThread: schema.DELETE_THREAD = {
+              action: "DELETE_THREAD",
+              args: {
+                id: thread.id + "O"
+              }
+            }
+            await expect(client.mutate.deleteThread(signer, deleteThread))
+              .to.be.rejectedWith(Error)
           })
       
-          it.skip("is admin only", async () => {
-      
+          it("is admin only", async () => {
+            const signer2 = await provider.getSigner(1)
+            const beforeThread = await findThreadInForum(thread.title, forum)
+            const deleteThread: schema.DELETE_THREAD = {
+              action: "DELETE_THREAD",
+              args: {
+                id: thread.id
+              }
+            }
+            await client.mutate.deleteThread(signer2, deleteThread)
+            await delay(GRAPH_DELAY)
+            const afterThread = await findThreadInForum(thread.title, forum)
+            assert.deepEqual(beforeThread, afterThread)
           })
         })
 
         describe("Post mutations:", function () {
-          before(async () => {
-            const createThread = await newThread(signer, forum)
-            await delay(5000)
-            thread = await findThreadInForum(createThread.args.title, forum)
-          })
-        
+          let post: Post
+          let signer3: ethers.Signer
+
           describe("createPost", function () {
             it("makes a new post", async () => {
-              const createPost = await newPost(signer, thread)
-              await delay(5000)
-              const post = await findPostInThread(createPost.args.content, thread)
-              checkCreatePost(createPost, post, await signer.getAddress(), thread)
+              signer3 = await provider.getSigner(2)
+              thread = await findThreadInForum(thread.title, forum)
+              const createPost = await newPost(signer3, thread)
+              await delay(GRAPH_DELAY)
+              post = await findPostInThread(createPost.args.content, thread)
+              checkCreatePost(createPost, post, await signer3.getAddress(), thread)
             })
         
-            it.skip("fails with invalid inputs", async () => {
-        
+            it("fails with invalid inputs (thread id)", async () => {
+              const createPost: schema.CREATE_POST = {
+                action: "CREATE_POST",
+                args: {
+                  thread: thread.id + "K",
+                  reply_to_post: thread.posts[0].id,
+                  content: "Content"
+                }
+              }
+              await expect(client.mutate.createPost(signer3, createPost))
+                .to.be.rejectedWith(Error)
+            })
+
+            it("fails with invalid inputs (reply id)", async () => {
+              const createPost: schema.CREATE_POST = {
+                action: "CREATE_POST",
+                args: {
+                  thread: thread.id,
+                  reply_to_post: "0xFGRle93",
+                  content: "Content"
+                }
+              }
+              await expect(client.mutate.createPost(signer3, createPost))
+                .to.be.rejectedWith(Error)
             })
           })
 
           describe("editPost", function () {
-            it.skip("edits a post (author)", async () => {
-
+            it("edits a post", async () => {
+              const beforePost = await findPostInThread(post.content, thread)
+              const editPost: schema.EDIT_POST = {
+                action: "EDIT_POST",
+                args: {
+                  id: post.id,
+                  content: Date.now().toString() + " post content from AUTHOR EDIT POST"
+                }
+              }
+              await client.mutate.editPost(signer3, editPost)
+              await delay(GRAPH_DELAY)
+              const afterPost = await findPostInThread(editPost.args.content, thread)
+              checkEditPost(beforePost, editPost, afterPost)
+              post = afterPost
             })
-
-            it.skip("edits a post (admin)", async () => {
-
+        
+            it("fails with invalid inputs (post id)", async () => {
+              const editPost: schema.EDIT_POST = {
+                action: "EDIT_POST",
+                args: {
+                  id: post.id + "1",
+                  content: "Content"
+                }
+              }
+              await expect(client.mutate.editPost(signer, editPost))
+                .to.be.rejectedWith(Error)
             })
         
-            it.skip("fails with invalid inputs", async () => {
-        
-            })
-        
-            it.skip("is admin or author only", async () => {
-        
+            it("is author only", async () => {
+              const editPost: schema.EDIT_POST = {
+                action: "EDIT_POST",
+                args: {
+                  id: post.id,
+                  content: Date.now().toString() + " post content from ADMIN EDIT POST"
+                }
+              }
+              await client.mutate.editPost(signer, editPost)
+              await delay(GRAPH_DELAY)
+              await expect(findPostInThread(editPost.args.content, thread))
+                .to.be.rejectedWith(Error)
             })
           })
 
           describe("deletePost", function () {
-            // Posts aren't actually removed from the subgraph, just marked "deleted" (unlike other entities)
-            it.skip("deletes a post (author)", async () => {
+            let post2: Post
+            let post3: Post
 
+            before(async () => {
+              thread = await findThreadInForum(thread.title, forum)
+              const createPost2 = await newPost(signer, thread)
+              const createPost3 = await newPost(signer, thread)
+              await delay(GRAPH_DELAY)
+              post2 = await findPostInThread(createPost2.args.content, thread)
+              checkCreatePost(createPost2, post2, await signer.getAddress(), thread)
+              post3 = await findPostInThread(createPost3.args.content, thread)
+              checkCreatePost(createPost3, post3, await signer.getAddress(), thread)
             })
 
-            it.skip("deletes a post (admin)", async () => {
+            it("deletes a post (author)", async () => {
+              const deletePost: schema.DELETE_POST = {
+                action: "DELETE_POST",
+                args: {
+                  id: post.id
+                }
+              }
+              await client.mutate.deletePost(signer3, deletePost)
+              await delay(GRAPH_DELAY)
+              await expect(findPostInThread(post.content, thread))
+                .to.be.rejectedWith(Error)
+            })
 
+            it("deletes a post (admin)", async () => {
+              const deletePost: schema.DELETE_POST = {
+                action: "DELETE_POST",
+                args: {
+                  id: post2.id
+                }
+              }
+              await client.mutate.deletePost(signer, deletePost)
+              await delay(GRAPH_DELAY)
+              await expect(findPostInThread(post2.content, thread))
+                .to.be.rejectedWith(Error)
             })
         
-            it.skip("fails with invalid inputs", async () => {
-        
+            it("fails with invalid inputs (post id)", async () => {
+              const deletePost: schema.DELETE_POST = {
+                action: "DELETE_POST",
+                args: {
+                  id: "0x2343434AAA"
+                }
+              }
+              await expect(client.mutate.deletePost(signer, deletePost))
+                .to.be.rejectedWith(Error)
             })
         
-            it.skip("is admin or author only", async () => {
-        
+            it("is admin or author only", async () => {
+              const beforePost = await findPostInThread(post3.content, thread)
+              const signer2 = await provider.getSigner(1)
+              const deletePost: schema.DELETE_POST = {
+                action: "DELETE_POST",
+                args: {
+                  id: post3.id
+                }
+              }
+              await client.mutate.deletePost(signer2, deletePost)
+              await delay(GRAPH_DELAY)
+              const afterPost = await findPostInThread(post3.content, thread)
+              assert.deepEqual(beforePost, afterPost)
             })
           })
         })

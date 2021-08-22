@@ -7,16 +7,18 @@ export async function categoriesByForum(
 ) {
   const skip = pageSize * pageIndex
   const query = `{
-    categories(forum: "${forum}", first: ${pageSize}, skip: ${skip}) {
+    categories(where: { deleted: false }, forum: "${forum}", first: ${pageSize}, skip: ${skip}) {
       id
       title
       description
       forum { id }
-      threads(first: 5) {
+      threads(where: { deleted: false }, first: 5) {
         id
         author { id }
         title
+        deleted
       }
+      deleted
     }
   }`
   const categories: Category[] = (await querySubgraph(query)).data.categories

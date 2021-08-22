@@ -30,10 +30,6 @@ export function createThread(event: NewPost, args: TypedMap<string, JSONValue>):
     author.save()
   }
   thread.author = author.id
-  log.info(
-    "thread author: {}",
-    [ thread.author ]
-  )
 
   let categoryJSON = args.get("category")
   if (categoryJSON.kind == JSONValueKind.STRING) {
@@ -41,6 +37,8 @@ export function createThread(event: NewPost, args: TypedMap<string, JSONValue>):
     let category = Category.load(categoryId)
     if (category != null) { thread.category = categoryId }
   }
+  thread.deleted = false
+
   thread.save()
 
   let postId = id
@@ -53,9 +51,9 @@ export function createThread(event: NewPost, args: TypedMap<string, JSONValue>):
     return 
   }
   post.content = contentValue.toString()
-
   post.thread = id
   post.deleted = false
+
   post.save()
 }
 
@@ -70,18 +68,11 @@ export function deleteThread(event: NewPost, args: TypedMap<string, JSONValue>):
   let thread = Thread.load(id)
   if (thread == null) { return }
 
-  let forumIdValue = args.get("forum")
-  if (forumIdValue.kind != JSONValueKind.STRING) { 
-    log.warning("Skipping post: missing valid Postum 'forum' field", [])
-    return 
-  }
-  let forumId = forumIdValue.toString()
-
-  let forum = Forum.load(forumId)
+  let forum = Forum.load(thread.forum)
   if (forum == null) { return }
 
   let senderAdminRole = AdminRole.load(forum.id + "-" + event.transaction.from.toHexString())
-  if (senderAdminRole == null) {
+  if (senderAdminRole == null || senderAdminRole.deleted == true) {
     log.error(
       "Permissions: {} not an admin in forum {}",
       [
@@ -92,5 +83,6 @@ export function deleteThread(event: NewPost, args: TypedMap<string, JSONValue>):
     return
   }
 
-  store.remove("Thread", id)
+  thread.deleted = true
+  thread.save()
 }

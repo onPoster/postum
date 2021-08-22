@@ -7,7 +7,7 @@ export async function postsByThread(
 ) {
   const skip = pageSize * pageIndex
   const query = `{
-    posts(thread: "${thread}", first: ${pageSize}, skip: ${skip}) {
+    posts(where: { deleted: false }, thread: "${thread}", first: ${pageSize}, skip: ${skip}) {
       id
       author { id }
       thread { id }
@@ -34,7 +34,7 @@ export async function postsByAuthor(
 ) {
   const skip = pageSize * pageIndex
   const query = `{
-    posts(author: "${author}", first: ${pageSize}, skip: ${skip}) {
+    posts(where: { deleted: false }, author: "${author}", first: ${pageSize}, skip: ${skip}) {
       id
       author { id }
       thread {
@@ -53,6 +53,7 @@ export async function postsByAuthor(
           reply_to_post { id }
           deleted
         }
+        deleted
       }
       content
       reply_to_post {
@@ -77,7 +78,7 @@ export async function postsBySearch(
 ) {
   const skip = pageSize * pageIndex
   const query = `{
-    posts(content_contains: "${searchText}", first: ${pageSize}, skip: ${skip}) {
+    posts(where: { deleted: false }, content_contains: "${searchText}", first: ${pageSize}, skip: ${skip}) {
       id
       author { id }
       thread { 
@@ -96,6 +97,7 @@ export async function postsBySearch(
           reply_to_post { id }
           deleted
         }
+        deleted
       }
       content
       reply_to_post {

@@ -3,10 +3,10 @@ import { querySubgraph, Forum } from "."
 export async function allForums(pageSize: number, pageIndex: number) {
   const skip = pageSize * pageIndex
   const query = `{
-    forums(first: ${pageSize}, skip: ${skip}) {
+    forums(where: { deleted: false }, first: ${pageSize}, skip: ${skip}) {
       id
       title
-      categories(first: ${pageSize}) {
+      categories(where: { deleted: false }, first: ${pageSize}) {
         id
         title
         description
@@ -24,9 +24,10 @@ export async function allForums(pageSize: number, pageIndex: number) {
             reply_to_post { id }
             deleted
           }
+          deleted
         }
       }
-      threads(first: ${pageSize}) {
+      threads(where: { deleted: false }, first: ${pageSize}) {
         id
         author { id }
         title
@@ -39,13 +40,16 @@ export async function allForums(pageSize: number, pageIndex: number) {
           reply_to_post { id }
           deleted
         }
+        deleted
       }
-      admin_roles {
+      admin_roles(where: { deleted: false }, first: ${pageSize}) {
         id
         user {
           id
         }
+        deleted
       }
+      deleted
     }
   }`
   const forums: Forum[] = (await querySubgraph(query)).data.forums

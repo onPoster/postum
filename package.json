@@ -18,7 +18,7 @@
     "down": "yarn docker-down && yarn docker-clean",
 
     "test": "yarn test-unit && yarn test-integration",
-    "test-unit": "yarn test-poster $$ yarn test-json-schema",
+    "test-unit": "yarn test-poster && yarn test-json-schema",
     "test-integration": "yarn test-client",
     "test-poster": "yarn workspace @postum/poster test-local",
     "test-json-schema": "yarn workspace @postum/json-schema test",

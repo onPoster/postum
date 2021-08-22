@@ -13,7 +13,7 @@ export function createCategory(event: NewPost, args: TypedMap<string, JSONValue>
   if (forum == null) { return }
 
   let senderAdminRole = AdminRole.load(forum.id + "-" + event.transaction.from.toHexString())
-  if (senderAdminRole == null) {
+  if (senderAdminRole == null || senderAdminRole.deleted == true) {
     log.error(
       "Permissions: {} not an admin in forum {}",
       [
@@ -41,6 +41,7 @@ export function createCategory(event: NewPost, args: TypedMap<string, JSONValue>
     return 
   }
   category.description = descriptionValue.toString()
+  category.deleted = false
 
   category.save()
 }
@@ -57,7 +58,7 @@ export function editCategory(event: NewPost, args: TypedMap<string, JSONValue>):
 
   let forum = Forum.load(category.forum)
   let senderAdminRole = AdminRole.load(forum.id + "-" + event.transaction.from.toHexString())
-  if (senderAdminRole == null) {
+  if (senderAdminRole == null || senderAdminRole.deleted == true) {
     log.error(
       "Permissions: {} not an admin in forum {}",
       [
@@ -97,7 +98,7 @@ export function deleteCategory(event: NewPost, args: TypedMap<string, JSONValue>
 
   let forum = Forum.load(category.forum)
   let senderAdminRole = AdminRole.load(forum.id + "-" + event.transaction.from.toHexString())
-  if (senderAdminRole == null) {
+  if (senderAdminRole == null || senderAdminRole.deleted == true) {
     log.error(
       "Permissions: {} not an admin in forum {}",
       [
@@ -108,5 +109,6 @@ export function deleteCategory(event: NewPost, args: TypedMap<string, JSONValue>
     return
   }
 
-  store.remove("Category", id)
+  category.deleted = true
+  category.save()
 }

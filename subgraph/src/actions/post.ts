@@ -38,8 +38,9 @@ export function createPost(event: NewPost, args: TypedMap<string, JSONValue>): v
   }
   post.content = contentValue.toString()
 
-  post.thread = threadId
+  post.thread = thread.id
   post.deleted = false
+
   post.save()
 }
 
@@ -94,7 +95,7 @@ export function deletePost(event: NewPost, args: TypedMap<string, JSONValue>): v
 
   let senderAdminRole = AdminRole.load(forum.id + "-" + event.transaction.from.toHexString())
   if (
-    senderAdminRole == null ||
+    (senderAdminRole == null || senderAdminRole.deleted == true) &&
     event.transaction.from.toHexString() != post.author
   ) {
     log.error(
@@ -108,7 +109,7 @@ export function deletePost(event: NewPost, args: TypedMap<string, JSONValue>): v
     )
     return
   }
-  
+
   post.deleted = true
   post.save()
 }

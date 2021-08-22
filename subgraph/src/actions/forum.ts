@@ -30,8 +30,10 @@ export function createForum(event: NewPost, args: TypedMap<string, JSONValue>): 
     let adminRole = new AdminRole(forum.id + '-' + user.id)
     adminRole.forum = forum.id
     adminRole.user = user.id
+    adminRole.deleted = false
     adminRole.save()
   }
+  forum.deleted = false
 
   forum.save()
 }
@@ -47,7 +49,7 @@ export function editForum(event: NewPost, args: TypedMap<string, JSONValue>): vo
   if (forum == null) { return }
 
   let senderAdminRole = AdminRole.load(forum.id + "-" + event.transaction.from.toHexString())
-  if (senderAdminRole == null) {
+  if (senderAdminRole == null || senderAdminRole.deleted == true) {
     log.error(
       "Permissions: {} not an admin in forum {}",
       [
@@ -79,7 +81,7 @@ export function deleteForum(event: NewPost, args: TypedMap<string, JSONValue>): 
   if (forum == null) { return }
 
   let senderAdminRole = AdminRole.load(forum.id + "-" + event.transaction.from.toHexString())
-  if (senderAdminRole == null) {
+  if (senderAdminRole == null || senderAdminRole.deleted == true) {
     log.error(
       "Permissions: {} not an admin in forum {}",
       [
@@ -90,5 +92,6 @@ export function deleteForum(event: NewPost, args: TypedMap<string, JSONValue>): 
     return
   }
 
-  store.remove("Forum", id)
+  forum.deleted = true
+  forum.save()
 }
