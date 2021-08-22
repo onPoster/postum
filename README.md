@@ -51,12 +51,13 @@ Please read [this](https://ethereum-magicians.org/t/eip-eip-3722-poster-a-ridicu
 Other than that, contributions welcome! Please be clear and respectful. You can contact Ezra via the thread linked above or on twitter @m0zrat.
 
 ### TODOs
-Must have:
+**Must have:**
 - Unit testing
 - Frontend
 - Production deployment on a cheap Ethereum layer 2
 
-Should have:
+**Should have:**
+- Linting
 - Test coverage analysis
 - Something to manage versioning and deploying new versions
 - The Poster contract should possibly take and emit Bytes instead of a string for greater efficiency (may not matter since it looks like the large majority of the costs will come from the base Ethereum transaction fee, which won't change, and The Graph fees, which are based on queries, I think).
