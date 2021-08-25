@@ -1,15 +1,13 @@
-import { JSONValue, TypedMap, store, log, JSONValueKind } from "@graphprotocol/graph-ts"
+import { JSONValue, TypedMap, log } from "@graphprotocol/graph-ts"
 import { NewPost } from "../../generated/Poster/Poster"
 import { Forum, User, AdminRole } from "../../generated/schema"
+import { getStringFromJson } from "../utils"
 
 export function grantAdminRole(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let forumIdValue = args.get("forum")
-  if (forumIdValue.kind != JSONValueKind.STRING) { 
-    log.warning("Skipping post: missing valid Postum 'forum' field", [])
-    return 
-  }
-  let forumId = forumIdValue.toString()
-  let forum = Forum.load(forumId)
+  let forumRes = getStringFromJson(args, "forum")
+  if (forumRes.error != "none") { log.warning(forumRes.error, []); return }
+
+  let forum = Forum.load(forumRes.data)
   if (forum == null) { return }
 
   let senderAdminRole = AdminRole.load(forum.id + "-" + event.transaction.from.toHexString())
@@ -24,12 +22,10 @@ export function grantAdminRole(event: NewPost, args: TypedMap<string, JSONValue>
     return
   }
 
-  let userIdValue = args.get("user")
-  if (userIdValue.kind != JSONValueKind.STRING) { 
-    log.warning("Skipping post: missing valid Postum 'user' field", [])
-    return 
-  }
-  let userId = userIdValue.toString()
+  let userRes = getStringFromJson(args, "user")
+  if (userRes.error != "none") { log.warning(userRes.error, []); return }
+  let userId = userRes.data
+
   let user = User.load(userId)
   if (user == null) { 
     user = new User(userId) 
@@ -44,19 +40,13 @@ export function grantAdminRole(event: NewPost, args: TypedMap<string, JSONValue>
 }
 
 export function removeAdminRole(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let forumIdValue = args.get("forum")
-  if (forumIdValue.kind != JSONValueKind.STRING) { 
-    log.warning("Skipping post: missing valid Postum 'forum' field", [])
-    return 
-  }
-  let forumId = forumIdValue.toString()
+  let forumRes = getStringFromJson(args, "forum")
+  if (forumRes.error != "none") { log.warning(forumRes.error, []); return }
+  let forumId = forumRes.data
 
-  let userIdValue = args.get("user")
-  if (userIdValue.kind != JSONValueKind.STRING) { 
-    log.warning("Skipping post: missing valid Postum 'user' field", [])
-    return 
-  }
-  let userId = userIdValue.toString()
+  let userRes = getStringFromJson(args, "user")
+  if (userRes.error != "none") { log.warning(userRes.error, []); return }
+  let userId = userRes.data
 
   let senderAdminRole = AdminRole.load(forumId + "-" + event.transaction.from.toHexString())
   if (senderAdminRole == null || senderAdminRole.deleted == true) {

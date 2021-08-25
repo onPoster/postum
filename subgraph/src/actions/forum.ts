@@ -1,24 +1,19 @@
-import { JSONValue, TypedMap, store, log, JSONValueKind } from "@graphprotocol/graph-ts"
+import { JSONValue, TypedMap, log } from "@graphprotocol/graph-ts"
 import { NewPost } from "../../generated/Poster/Poster"
 import { Forum, User, AdminRole } from "../../generated/schema"
+import { getArrayFromJson, getStringFromJson } from "../utils"
 
 export function createForum(event: NewPost, args: TypedMap<string, JSONValue>): void {
   let id = event.transaction.hash.toHexString()
   let forum = new Forum(id)
 
-  let titleValue = args.get("title")
-  if (titleValue.kind != JSONValueKind.STRING) { 
-    log.warning("Skipping post: missing valid Postum 'title' field", [])
-    return 
-  }
-  forum.title = titleValue.toString()
+  let titleRes = getStringFromJson(args, "title")
+  if (titleRes.error != "none") { log.warning(titleRes.error, []); return }
+  forum.title = titleRes.data
 
-  let adminsValue = args.get("admins")
-  if (adminsValue.kind != JSONValueKind.ARRAY) { 
-    log.warning("Skipping post: missing valid Postum 'admins' field", [])
-    return 
-  }
-  let adminArray = adminsValue.toArray()
+  let adminsRes = getArrayFromJson(args, "admins")
+  if (adminsRes.error != "none") { log.warning(adminsRes.error, []); return }
+  let adminArray = adminsRes.data
 
   for(let i = 0; i < adminArray.length; i++) {
     let userId = adminArray[i].toString()
@@ -39,13 +34,10 @@ export function createForum(event: NewPost, args: TypedMap<string, JSONValue>): 
 }
 
 export function editForum(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let idValue = args.get("id")
-  if (idValue.kind != JSONValueKind.STRING) { 
-    log.warning("Skipping post: missing valid Postum 'id' field", [])
-    return 
-  }
-  let id = idValue.toString()
-  let forum = Forum.load(id)
+  let idRes = getStringFromJson(args, "id")
+  if (idRes.error != "none") { log.warning(idRes.error, []); return }
+
+  let forum = Forum.load(idRes.data)
   if (forum == null) { return }
 
   let senderAdminRole = AdminRole.load(forum.id + "-" + event.transaction.from.toHexString())
@@ -60,24 +52,18 @@ export function editForum(event: NewPost, args: TypedMap<string, JSONValue>): vo
     return
   }
 
-  let titleValue = args.get("title")
-  if (titleValue.kind != JSONValueKind.STRING) { 
-    log.warning("Skipping post: missing valid Postum 'title' field", [])
-    return 
-  }
-  forum.title = titleValue.toString()
+  let titleRes = getStringFromJson(args, "title")
+  if (titleRes.error != "none") { log.warning(titleRes.error, []); return }
+  forum.title = titleRes.data
 
   forum.save()
 }
 
 export function deleteForum(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let idValue = args.get("id")
-  if (idValue.kind != JSONValueKind.STRING) { 
-    log.warning("Skipping post: missing valid Postum 'id' field", [])
-    return 
-  }
-  let id = idValue.toString()
-  let forum = Forum.load(id)
+  let idRes = getStringFromJson(args, "id")
+  if (idRes.error != "none") { log.warning(idRes.error, []); return }
+
+  let forum = Forum.load(idRes.data)
   if (forum == null) { return }
 
   let senderAdminRole = AdminRole.load(forum.id + "-" + event.transaction.from.toHexString())

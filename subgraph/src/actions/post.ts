@@ -1,16 +1,13 @@
-import { JSONValue, JSONValueKind, TypedMap, store, log } from "@graphprotocol/graph-ts"
+import { JSONValue, TypedMap, log } from "@graphprotocol/graph-ts"
 import { NewPost } from "../../generated/Poster/Poster"
 import { Forum, AdminRole, Thread, User, Post } from "../../generated/schema"
+import { getStringFromJson } from "../utils"
 
 export function createPost(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let threadValue = args.get("thread")
-  if (threadValue.kind != JSONValueKind.STRING) { 
-    log.warning("Skipping post: missing valid Postum 'thread' field", [])
-    return 
-  }
-  let threadId = threadValue.toString()
+  let threadRes = getStringFromJson(args, "thread")
+  if (threadRes.error != "none") { log.warning(threadRes.error, []); return }
 
-  let thread = Thread.load(threadId)
+  let thread = Thread.load(threadRes.data)
   if (thread == null) { return }
 
   let postId = event.transaction.hash.toHexString()
@@ -24,19 +21,15 @@ export function createPost(event: NewPost, args: TypedMap<string, JSONValue>): v
   }
   post.author = author.id
 
-  let replyJSON = args.get("reply_to_post")
-  if (replyJSON.kind == JSONValueKind.STRING) {
-    let replyId = replyJSON.toString()
-    let replyToPost = Post.load(replyId)
-    if (replyToPost != null) { post.reply_to_post = replyId }
+  let replyRes = getStringFromJson(args, "reply_to_post")
+  if (replyRes.error == "none") { 
+    let replyToPost = Post.load(replyRes.data)
+    if (replyToPost != null) { post.reply_to_post = replyRes.data }
   }
 
-  let contentValue = args.get("content")
-  if (contentValue.kind != JSONValueKind.STRING) { 
-    log.warning("Skipping post: missing valid Postum 'content' field", [])
-    return 
-  }
-  post.content = contentValue.toString()
+  let contentRes = getStringFromJson(args, "content")
+  if (contentRes.error != "none") { log.warning(contentRes.error, []); return }
+  post.content = contentRes.data
 
   post.thread = thread.id
   post.deleted = false
@@ -45,14 +38,10 @@ export function createPost(event: NewPost, args: TypedMap<string, JSONValue>): v
 }
 
 export function editPost(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let idValue = args.get("id")
-  if (idValue.kind != JSONValueKind.STRING) { 
-    log.warning("Skipping post: missing valid Postum 'id' field", [])
-    return 
-  }
-  let id = idValue.toString()
+  let idRes = getStringFromJson(args, "id")
+  if (idRes.error != "none") { log.warning(idRes.error, []); return }
 
-  let post = Post.load(id)
+  let post = Post.load(idRes.data)
   if (post == null) { return }
 
   if (event.transaction.from.toHexString() != post.author) {
@@ -67,24 +56,18 @@ export function editPost(event: NewPost, args: TypedMap<string, JSONValue>): voi
     return
   }
 
-  let contentValue = args.get("content")
-  if (contentValue.kind != JSONValueKind.STRING) { 
-    log.warning("Skipping post: missing valid Postum 'content' field", [])
-    return 
-  }
-  post.content = contentValue.toString()
+  let contentRes = getStringFromJson(args, "content")
+  if (contentRes.error != "none") { log.warning(contentRes.error, []); return }
+  post.content = contentRes.data
 
   post.save()
 }
 
 export function deletePost(event: NewPost, args: TypedMap<string, JSONValue>): void {
-  let idValue = args.get("id")
-  if (idValue.kind != JSONValueKind.STRING) { 
-    log.warning("Skipping post: missing valid Postum 'id' field", [])
-    return 
-  }
-  let id = idValue.toString()
-  let post = Post.load(id)
+  let idRes = getStringFromJson(args, "id")
+  if (idRes.error != "none") { log.warning(idRes.error, []); return }
+
+  let post = Post.load(idRes.data)
   if (post == null) { return }
 
   let thread = Thread.load(post.thread)

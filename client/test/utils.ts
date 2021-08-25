@@ -12,6 +12,8 @@ export function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
+export const GRAPH_DELAY = 1000
+
 // ==== mutations ====
 
 export async function newForum(signer: ethers.Signer): Promise<schema.CREATE_FORUM> {
@@ -108,14 +110,12 @@ export async function findForum(title: string): Promise<Forum> {
 }
 
 export async function findAdminRole(adminRole: schema.GRANT_ADMIN_ROLE): Promise<AdminRole> {
-  const forums = await client.query.allForums(1000, 0)
+  const admins = await client.query.adminsByForum(adminRole.args.forum, 1000, 0)
   let res: AdminRole | false = false
-  forums.forEach(forum => {
-    forum.admin_roles.forEach(ar => {
-      if (ar.user.id == adminRole.args.user) {
-        res = ar
-      }
-    })
+  admins.forEach(admin => {
+    if (admin.user.id == adminRole.args.user) {
+      res = admin
+    }
   })
   if (res == false) { assert.equal(res, true, "no admin role found") }
   return res as AdminRole

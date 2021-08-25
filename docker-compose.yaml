@@ -1,7 +1,7 @@
 version: '3'
 services:
   graph-node:
-    image: graphprotocol/graph-node:v0.22.0
+    image: graphprotocol/graph-node:v0.23.1
     ports:
       - '8000:8000'
       - '8001:8001'
@@ -20,6 +20,8 @@ services:
       # Change next line if you want to connect to a different JSON-RPC endpoint
       ethereum: 'mainnet:http://host.docker.internal:8545'
       GRAPH_LOG: info
+      GRAPH_ALLOW_NON_DETERMINISTIC_FULLTEXT_SEARCH: ${FULLTEXT_SEARCH:-"true"}
+      ETHEREUM_POLLING_INTERVAL: 100
 
     # extra hosts was added for linux compatibility
     extra_hosts:

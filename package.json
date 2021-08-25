@@ -11,26 +11,32 @@
     "client",
     "json-schema",
     "poster",
-    "subgraph"
+    "subgraph",
+    "vue"
   ],
   "scripts": {
-    "up": "yarn docker-up && yarn poster-deploy-local && yarn subgraph-up",
+    "up": "yarn docker-up",
+    "build": "yarn build-poster && yarn build-json-schema && yarn build-subgraph",
+    "deploy-local": "yarn deploy-poster-local && yarn deploy-subgraph-local",
     "down": "yarn docker-down && yarn docker-clean",
-
-    "test": "yarn test-unit && yarn test-integration",
-    "test-unit": "yarn test-poster && yarn test-json-schema",
-    "test-integration": "yarn test-client",
-    "test-poster": "yarn workspace @postum/poster test-local",
-    "test-json-schema": "yarn workspace @postum/json-schema test",
-    "test-client": "yarn workspace @postum/client test",
 
     "docker-up": "docker-compose -f docker-compose.yaml up -d",
     "docker-down": "docker-compose -f docker-compose.yaml down",
     "docker-clean": "docker volume rm postum_postgres-volume",
     "docker-logs": "docker-compose -f docker-compose.yaml logs",
 
-    "poster-deploy-local": "yarn workspace @postum/poster deploy-local",
+    "build-poster": "yarn workspace @postum/poster build",
+    "build-json-schema": "yarn workspace @postum/json-schema build-all",
+    "build-subgraph": "yarn workspace @postum/subgraph build-all",
 
-    "subgraph-up": "yarn workspace @postum/subgraph build-and-deploy-local"
+    "deploy-poster-local": "yarn workspace @postum/poster deploy-local",
+    "deploy-subgraph-local": "yarn workspace @postum/subgraph create-and-deploy-local",
+
+    "test": "yarn test-unit && yarn test-integration",
+    "test-unit": "yarn test-poster && yarn test-json-schema",
+    "test-integration": "yarn test-client",
+    "test-poster": "yarn workspace @postum/poster test-local",
+    "test-json-schema": "yarn workspace @postum/json-schema test",
+    "test-client": "yarn workspace @postum/client test"
   }
 }

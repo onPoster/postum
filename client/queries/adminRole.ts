@@ -1,3 +1,27 @@
+import { querySubgraph, AdminRole } from "."
+
+export async function adminsByForum(
+  forum: string,
+  pageSize: number,
+  pageIndex: number
+) {
+  const skip = pageSize * pageIndex
+  const query = `{
+    adminRoles(where: { deleted: false }, forum: "${forum}", first: ${pageSize}, skip: ${skip}) {
+      id
+      user {
+        id
+      }
+      forum {
+        id
+      }
+      deleted
+    }
+  }`
+  const admins: AdminRole[] = (await querySubgraph(query)).data.adminRoles
+  return admins
+}
+/*
 type Forum @entity {
   id: ID!
   title: String!
@@ -48,13 +72,4 @@ type AdminRole @entity {
   forum: Forum!
   deleted: Boolean!
 }
-
-type _Schema_ @fulltext(
-  name: "postSearch"
-  language: en
-  algorithm: proximityRank
-  include: [{
-    entity: "Post",
-    fields: [{ name: "content" }]
-  }]
-)
+*/

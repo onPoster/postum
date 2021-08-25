@@ -6,9 +6,9 @@
   "author": "Ezra Weller",
   "license": "MIT",
   "scripts": {
-    "generate-all": "yarn generate-validate && yarn generate-types",
-    "generate-validate": "node scripts/generateValidate",
-    "generate-types": "node scripts/generateTsTypes",
+    "build-all": "yarn build-validate && yarn build-types",
+    "build-validate": "node scripts/validate.build.js",
+    "build-types": "node scripts/tsTypes.build.js",
 
     "test": "ts-node test/*"
   },

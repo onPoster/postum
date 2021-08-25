@@ -18,6 +18,7 @@ export async function querySubgraph(query: string) {
 }
 
 export * from "./forum"
+export * from "./adminRole"
 export * from "./category"
 export * from "./thread"
 export * from "./post"

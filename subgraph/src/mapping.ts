@@ -1,5 +1,6 @@
-import { json, Bytes, log, ByteArray, JSONValueKind } from "@graphprotocol/graph-ts"
+import { json, Bytes, log, ByteArray, JSONValue, TypedMap, JSONValueKind } from "@graphprotocol/graph-ts"
 import { NewPost } from "../generated/Poster/Poster"
+import { getStringFromJson } from "./utils"
 import {
   createForum,
   editForum,
@@ -25,32 +26,23 @@ import {
 } from "./actions/adminRole"
 
 export function handleNewPost(event: NewPost): void {
-  let result = json.try_fromBytes(
-    ByteArray.fromUTF8(event.params.content) as Bytes
-  )
-  if (result.isError) { 
-    log.warning("Failed to parse JSON", [])
-    return 
-  }
+  let objRes = getResultFromJson(event.params.content)
+  if (objRes.error != "none") { log.warning(objRes.error, []); return }
+  let object = objRes.object 
 
-  let object = result.value.toObject()
-  let actionValue = object.get("action")
-  if (actionValue.kind != JSONValueKind.STRING) { 
-    log.warning("Skipping post: missing valid Postum 'action' field", [])
-    return 
-  }
-  let action = actionValue.toString()
-  
-  let argsValue = object.get("args")
-  if (argsValue.kind != JSONValueKind.OBJECT) { 
-    log.warning("Skipping post: missing valid Postum 'args' field", [])
-    return 
-  }
-  let args = argsValue.toObject()
+  let actRes = getStringFromJson(object, "action")
+  if (actRes.error != "none") { log.warning(actRes.error, []); return }
+  let action = actRes.data
+
+  let argsRes = getObjFromJson(object, "args")
+  if (argsRes.error != "none") { log.warning(argsRes.error, []); return }
+  let args = argsRes.data
+
   log.info(
     "processing action: {}",
     [action]
   )
+
   if (action == "CREATE_FORUM") {
     createForum(event, args)
     return
@@ -104,4 +96,43 @@ export function handleNewPost(event: NewPost): void {
     return
     
   }
+}
+
+class JsonResult {
+  object: TypedMap<string, JSONValue>;
+  error: string;
+}
+
+function getResultFromJson(content: string): JsonResult {
+  let result: JsonResult
+  result.error = "none"
+  let jsonResult = json.try_fromBytes(
+    ByteArray.fromUTF8(content) as Bytes
+  )
+  if (jsonResult.isError) { 
+    result.error = "Failed to parse JSON"
+    return result
+  }
+  result.object = jsonResult.value.toObject()
+  return result
+}
+
+class JsonObjResult {
+  data: TypedMap<string, JSONValue>;
+  error: string;
+}
+
+function getObjFromJson(
+  object: TypedMap<string, JSONValue>,
+  key: string
+): JsonObjResult {
+  let result: JsonObjResult
+  result.error = "none"
+  let value = object.get(key)
+  if (value.kind != JSONValueKind.OBJECT) { 
+    result.error = "Missing valid Postum field: " + key
+    return result
+  }
+  result.data = value.toObject()
+  return result
 }

@@ -6,7 +6,7 @@
     "build-all": "yarn codegen && yarn build",
     "codegen": "graph codegen",
     "build": "graph build",
-    "build-and-deploy-local": "yarn build-all && yarn create-local && yarn deploy-local",
+    "create-and-deploy-local": "yarn create-local && yarn deploy-local",
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ EzraWeller/postum",
     "create-local": "graph create --node http://localhost:8020/ EzraWeller/postum",
     "remove-local": "graph remove --node http://localhost:8020/ EzraWeller/postum",

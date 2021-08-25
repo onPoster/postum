@@ -14,12 +14,11 @@ import {
   newThread,
   findThreadInForum,
   newPost, 
-  findPostInThread
+  findPostInThread,
+  GRAPH_DELAY
 } from "./utils"
 import client, { Forum, AdminRole, Category, Thread, Post } from ".."
 chai.use(chaiAsPromised)
-
-const GRAPH_DELAY = 1500
 
 function checkCreateForum(f1: schema.CREATE_FORUM, f2: Forum) {
   assert.equal(f2.title, f1.args.title, "forum title")
@@ -169,7 +168,7 @@ describe("Forum mutations:", function () {
       }
       await client.mutate.editForum(signer, editForum)
       await delay(GRAPH_DELAY)
-      const editedForum = await findForum(title)
+      const editedForum = await client.query.forum(forum.id)
       checkEditForum(forum, editForum, editedForum)
       forum = editedForum
     })
@@ -189,6 +188,7 @@ describe("Forum mutations:", function () {
 
     it("is admin only", async () => {
       const signer3 = await provider.getSigner(2)
+      const beforeForum = await client.query.forum(forum.id)
       const title: string = Date.now().toString() + " EDITED forum title 💖"
       const editForum: schema.EDIT_FORUM = {
         action: "EDIT_FORUM",
@@ -199,8 +199,8 @@ describe("Forum mutations:", function () {
       }
       await client.mutate.editForum(signer3, editForum)
       await delay(GRAPH_DELAY)
-      await expect(findForum(title))
-        .to.be.rejectedWith(Error)
+      const afterForum = await client.query.forum(forum.id)
+      assert.deepEqual(beforeForum, afterForum)
     })
   })
 
@@ -218,7 +218,7 @@ describe("Forum mutations:", function () {
       }
       await client.mutate.deleteForum(signer, deleteForum)
       await delay(GRAPH_DELAY)
-      await expect(findForum(forum2.title))
+      await expect(client.query.forum(forum2.id))
         .to.be.rejectedWith(Error)
     })
 
@@ -243,7 +243,7 @@ describe("Forum mutations:", function () {
       }
       await client.mutate.deleteForum(signer3, deleteForum)
       await delay(GRAPH_DELAY)
-      const returnedForum = await findForum(forum.title)
+      const returnedForum = await client.query.forum(forum.id)
       assert.deepEqual(forum, returnedForum, "forum")
     })
   })
@@ -295,7 +295,7 @@ describe("Forum mutations:", function () {
 
     describe("removeAdminRole", function () {
       it("removes an admin role", async () => {
-        forum = await findForum(forum.title)
+        forum = await client.query.forum(forum.id)
         const address = (await signer2.getAddress()).toLowerCase()
         const removeAdminRole: schema.REMOVE_ADMIN_ROLE = {
           action: "REMOVE_ADMIN_ROLE",
@@ -306,7 +306,7 @@ describe("Forum mutations:", function () {
         }
         await client.mutate.removeAdminRole(signer, removeAdminRole)
         await delay(GRAPH_DELAY)
-        const foundForum = await findForum(forum.title)
+        const foundForum = await client.query.forum(forum.id)
         checkRemoveAdminRole(forum, foundForum, removeAdminRole)
         forum = foundForum
       })
@@ -349,7 +349,7 @@ describe("Forum mutations:", function () {
         }
         await client.mutate.removeAdminRole(signer3, removeAdminRole)
         await delay(GRAPH_DELAY)
-        const foundForum = await findForum(forum.title)
+        const foundForum = await client.query.forum(forum.id)
         assert.deepEqual(forum, foundForum)
       })
     })

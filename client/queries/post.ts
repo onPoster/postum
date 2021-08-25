@@ -71,14 +71,24 @@ export async function postsByAuthor(
   return posts
 }
 
+/* This doesn't work
 export async function postsBySearch(
   searchText: string,
+  forum: string,
   pageSize: number, 
   pageIndex: number
 ) {
   const skip = pageSize * pageIndex
   const query = `{
-    posts(where: { deleted: false }, content_contains: "${searchText}", first: ${pageSize}, skip: ${skip}) {
+    posts(
+      where: { 
+        deleted: false,
+      }, 
+      forum: "${forum}",
+      content_contains: "${searchText}",
+      first: ${pageSize}, 
+      skip: ${skip}
+    ) {
       id
       author { id }
       thread { 
@@ -114,8 +124,8 @@ export async function postsBySearch(
   const posts: Post[] = (await querySubgraph(query)).data.posts
   return posts
 }
+*/
 
-/*
 export async function postsBySearch(
   searchText: string,
   pageSize: number, 
@@ -123,7 +133,7 @@ export async function postsBySearch(
 ) {
   const skip = pageSize * pageIndex
   const query = `{
-    postSearch(text: "${searchText}", first: "${pageSize}", skip: "${skip}") {
+    postSearch(text: "${searchText}", first: ${pageSize}, skip: ${skip}) {
       id
       author { id }
       thread { 
@@ -135,7 +145,7 @@ export async function postsBySearch(
           title
         }
         category { id }
-        posts(first: "1") {
+        posts(first: 1) {
           id
           author { id }
           content
@@ -155,7 +165,7 @@ export async function postsBySearch(
       deleted
     }
   }`
-  return (await querySubgraph(query)).data.posts
+  return (await querySubgraph(query)).data.postSearch
 }
 
 export async function postsBySearchAndForum(
@@ -169,8 +179,8 @@ export async function postsBySearchAndForum(
     postSearch(
       text: "${searchText}", 
       forum: "${forum}",
-      first: "${pageSize}", 
-      skip: "${skip}"
+      first: ${pageSize}, 
+      skip: ${skip}
     ) {
       id
       author { id }
@@ -180,7 +190,7 @@ export async function postsBySearchAndForum(
         title 
         forum { id }
         category { id }
-        posts(first: "1") {
+        posts(first: 1) {
           id
           author { id }
           content
@@ -200,7 +210,8 @@ export async function postsBySearchAndForum(
       deleted
     }
   }`
-  return (await querySubgraph(query)).data.posts
+  console.log((await querySubgraph(query)).data)
+  return (await querySubgraph(query)).data.postSearch
 }
 
 export async function postsBySearchAndThread(
@@ -214,8 +225,8 @@ export async function postsBySearchAndThread(
     postSearch(
       text: "${searchText}", 
       thread: "${thread}",
-      first: "${pageSize}", 
-      skip: "${skip}"
+      first: ${pageSize}, 
+      skip: ${skip}
     ) {
       id
       author { id }
@@ -225,7 +236,7 @@ export async function postsBySearchAndThread(
         title 
         forum { id }
         category { id }
-        posts(first: "1") {
+        posts(first: 1) {
           id
           author { id }
           content
@@ -245,6 +256,5 @@ export async function postsBySearchAndThread(
       deleted
     }
   }`
-  return (await querySubgraph(query)).data.posts
+  return (await querySubgraph(query)).data.postSearch
 }
-*/

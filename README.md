@@ -37,6 +37,8 @@ Have docker installed and working!
 
 `yarn up` -- spins up docker services for the packages: ganache for Ethereum; graph-node, IPFS, and postgres for the subgraph
 
+`yarn deploy-local` -- deploys local services: Ethereum smart contract & subgraph
+
 `yarn test` -- runs tests (currently only integration testing in the `client` package)
 
 `docker logs postum_graph-node_1` (checking the docker logs for the graph-node service) is particularly helpful for debugging the subgraph.
