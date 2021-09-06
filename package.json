@@ -11,8 +11,8 @@
     "client",
     "json-schema",
     "poster",
-    "subgraph",
-    "vue"
+    "react",
+    "subgraph"
   ],
   "scripts": {
     "up": "yarn docker-up",

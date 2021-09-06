@@ -1,5 +1,5 @@
-import schema from "./schema.js"
-import ajvValidate from "./generated/validate.js"
+import * as schema from "./schema.js"
+import * as ajvValidate from "./generated/validate.js"
 import { CREATE_CATEGORY } from "./generated/types/CREATE_CATEGORY"
 import { CREATE_FORUM } from "./generated/types/CREATE_FORUM"
 import { CREATE_POST } from "./generated/types/CREATE_POST"
@@ -24,9 +24,7 @@ const validate = (json) => {
   return res
 }
 
-export { 
-  schema,
-  validate,
+export {
   CREATE_CATEGORY,
   CREATE_FORUM,
   CREATE_POST,
@@ -41,4 +39,8 @@ export {
   GRANT_ADMIN_ROLE,
   POSTUM_ACTION,
   REMOVE_ADMIN_ROLE
+}
+export default { 
+  schema,
+  validate
 }
