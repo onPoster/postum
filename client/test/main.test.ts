@@ -1,6 +1,6 @@
 import chai, { assert, expect } from "chai"
 import chaiAsPromised from 'chai-as-promised'
-import * as schema from "@postum/json-schema"
+import { actions } from "@postum/json-schema"
 import { ethers } from "ethers"
 import { 
   delay, 
@@ -17,10 +17,19 @@ import {
   findPostInThread,
   GRAPH_DELAY
 } from "./utils"
-import client, { Forum, AdminRole, Category, Thread, Post } from ".."
+import client, { returnTypes } from ".."
+type Forum = returnTypes.Forum
+type AdminRole = returnTypes.AdminRole
+type Thread = returnTypes.Thread
+type Post = returnTypes.Post
+type Category = returnTypes.Category
 chai.use(chaiAsPromised)
 
-function checkCreateForum(f1: schema.CREATE_FORUM, f2: Forum) {
+/**
+ * Currently not testing the timing fields in the subgraph ("createdAt," etc.)
+ */
+
+function checkCreateForum(f1: actions.CREATE_FORUM, f2: returnTypes.Forum) {
   assert.equal(f2.title, f1.args.title, "forum title")
   assert.exists(f2.id, "forum id")
   assert.equal(
@@ -30,19 +39,19 @@ function checkCreateForum(f1: schema.CREATE_FORUM, f2: Forum) {
   )
 }
 
-function checkEditForum(f0: Forum, f1: schema.EDIT_FORUM, f2: Forum) {
+function checkEditForum(f0: Forum, f1: actions.EDIT_FORUM, f2: Forum) {
   assert.equal(f2.title, f1.args.title, "forum title")
   assert.exists(f2.id, "forum id")
   assert.deepEqual<AdminRole[]>(f0.admin_roles, f2.admin_roles, "forum admins")
 }
 
-function checkGrantAdminRole(ar1: schema.GRANT_ADMIN_ROLE, ar2: AdminRole, forum: Forum) {
+function checkGrantAdminRole(ar1: actions.GRANT_ADMIN_ROLE, ar2: AdminRole, forum: Forum) {
   assert.exists(ar2.id, "admin role id")
   assert.equal(forum.id, ar1.args.forum, "admin role forum id")
   assert.equal(ar2.user.id, ar1.args.user, "admin role user id")
 }
 
-function checkRemoveAdminRole(forum1: Forum, forum2: Forum, ar: schema.REMOVE_ADMIN_ROLE) {
+function checkRemoveAdminRole(forum1: Forum, forum2: Forum, ar: actions.REMOVE_ADMIN_ROLE) {
   assert((() => {
     let res = false
     forum1.admin_roles.forEach(adminRole => {
@@ -67,7 +76,7 @@ function checkRemoveAdminRole(forum1: Forum, forum2: Forum, ar: schema.REMOVE_AD
   })(), "after remove")
 }
 
-function checkCreateCategory(c1: schema.CREATE_CATEGORY, c2: Category) {
+function checkCreateCategory(c1: actions.CREATE_CATEGORY, c2: Category) {
   assert.exists(c2.id, "category id")
   assert.equal(c2.forum.id, c1.args.forum, "category forum")
   assert.equal(c2.title, c1.args.title, "category title")
@@ -75,7 +84,7 @@ function checkCreateCategory(c1: schema.CREATE_CATEGORY, c2: Category) {
   assert.exists(c2.threads.length, "category threads")
 }
 
-function checkEditCategory(c1: schema.EDIT_CATEGORY, c2: Category, c3: Category) {
+function checkEditCategory(c1: actions.EDIT_CATEGORY, c2: Category, c3: Category) {
   assert.equal(c1.args.id, c3.id, "category ids 1")
   assert.equal(c1.args.title, c3.title, "category title")
   assert.equal(c1.args.description, c3.description, "category description")
@@ -84,7 +93,7 @@ function checkEditCategory(c1: schema.EDIT_CATEGORY, c2: Category, c3: Category)
   assert.deepEqual(c2.threads, c3.threads, "category threads")
 }
 
-function checkCreateThread(t1: schema.CREATE_THREAD, t2: Thread, address: string) {
+function checkCreateThread(t1: actions.CREATE_THREAD, t2: Thread, address: string) {
   assert.equal(t2.author.id, address, "thread author")
   if (t1.args.category) {
     assert.equal(t2.category.id, t1.args.category, "thread category")
@@ -98,7 +107,7 @@ function checkCreateThread(t1: schema.CREATE_THREAD, t2: Thread, address: string
 }
 
 function checkCreatePost(
-  p1: schema.CREATE_POST, 
+  p1: actions.CREATE_POST, 
   p2: Post, 
   authorAddress: string, 
   thread: Thread
@@ -111,7 +120,7 @@ function checkCreatePost(
   assert.equal(p2.thread.id, thread.id, "post thread")
 }
 
-function checkEditPost(p1: Post, p2: schema.EDIT_POST, p3: Post) {
+function checkEditPost(p1: Post, p2: actions.EDIT_POST, p3: Post) {
   assert.equal(p3.author.id, p1.author.id, "post author")
   assert.equal(p3.content, p2.args.content, "post content")
   assert.equal(p3.deleted, p1.deleted, "post deleted")
@@ -144,7 +153,7 @@ describe("Forum mutations:", function () {
 
     it("fails with invalid inputs (admins)", async () => {
       const title: string = Date.now().toString()
-      const createForum: schema.CREATE_FORUM = {
+      const createForum: actions.CREATE_FORUM = {
         action: "CREATE_FORUM",
         args: {
           title,
@@ -159,7 +168,7 @@ describe("Forum mutations:", function () {
   describe("editForum", function () {
     it("edits a forum", async () => {
       const title: string = Date.now().toString() + " EDITED forum title 💖"
-      const editForum: schema.EDIT_FORUM = {
+      const editForum: actions.EDIT_FORUM = {
         action: "EDIT_FORUM",
         args: {
           id: forum.id,
@@ -175,7 +184,7 @@ describe("Forum mutations:", function () {
 
     it("fails with invalid inputs (id)", async () => {
       const title: string = Date.now().toString() + " EDITED forum title 💖"
-      const editForum: schema.EDIT_FORUM = {
+      const editForum: actions.EDIT_FORUM = {
         action: "EDIT_FORUM",
         args: {
           id: "0x12345",
@@ -190,7 +199,7 @@ describe("Forum mutations:", function () {
       const signer3 = await provider.getSigner(2)
       const beforeForum = await client.query.forum(forum.id)
       const title: string = Date.now().toString() + " EDITED forum title 💖"
-      const editForum: schema.EDIT_FORUM = {
+      const editForum: actions.EDIT_FORUM = {
         action: "EDIT_FORUM",
         args: {
           id: forum.id,
@@ -210,7 +219,7 @@ describe("Forum mutations:", function () {
       await delay(GRAPH_DELAY)
       const forum2 = await findForum(createForum.args.title)
       checkCreateForum(createForum, forum2)
-      const deleteForum: schema.DELETE_FORUM = {
+      const deleteForum: actions.DELETE_FORUM = {
         action: "DELETE_FORUM",
         args: {
           id: forum2.id
@@ -223,7 +232,7 @@ describe("Forum mutations:", function () {
     })
 
     it("fails with invalid inputs (id)", async () => {
-      const deleteForum: schema.DELETE_FORUM = {
+      const deleteForum: actions.DELETE_FORUM = {
         action: "DELETE_FORUM",
         args: {
           id: "0x12345"
@@ -235,7 +244,7 @@ describe("Forum mutations:", function () {
 
     it("is admin only", async () => {
       const signer3 = provider.getSigner(2)
-      const deleteForum: schema.DELETE_FORUM = {
+      const deleteForum: actions.DELETE_FORUM = {
         action: "DELETE_FORUM",
         args: {
           id: forum.id
@@ -261,7 +270,7 @@ describe("Forum mutations:", function () {
       })
 
       it("fails with invalid inputs (forum id)", async () => {
-        const newAdminRole: schema.GRANT_ADMIN_ROLE = {
+        const newAdminRole: actions.GRANT_ADMIN_ROLE = {
           action: "GRANT_ADMIN_ROLE",
           args: {
             forum: "0xfllkajsdlfkj",
@@ -273,7 +282,7 @@ describe("Forum mutations:", function () {
       })
   
       it("fails with invalid inputs (user id)", async () => {
-        const newAdminRole: schema.GRANT_ADMIN_ROLE = {
+        const newAdminRole: actions.GRANT_ADMIN_ROLE = {
           action: "GRANT_ADMIN_ROLE",
           args: {
             forum: forum.id,
@@ -297,7 +306,7 @@ describe("Forum mutations:", function () {
       it("removes an admin role", async () => {
         forum = await client.query.forum(forum.id)
         const address = (await signer2.getAddress()).toLowerCase()
-        const removeAdminRole: schema.REMOVE_ADMIN_ROLE = {
+        const removeAdminRole: actions.REMOVE_ADMIN_ROLE = {
           action: "REMOVE_ADMIN_ROLE",
           args: {
             forum: forum.id,
@@ -313,7 +322,7 @@ describe("Forum mutations:", function () {
 
       it("fails with invalid inputs (forum id)", async () => {
         const address = (await signer.getAddress()).toLowerCase()
-        const removeAdminRole: schema.REMOVE_ADMIN_ROLE = {
+        const removeAdminRole: actions.REMOVE_ADMIN_ROLE = {
           action: "REMOVE_ADMIN_ROLE",
           args: {
             forum: forum.id + "P",
@@ -326,7 +335,7 @@ describe("Forum mutations:", function () {
 
       it("fails with invalid inputs (user id)", async () => {
         const address = (await signer.getAddress()).toLowerCase()
-        const removeAdminRole: schema.REMOVE_ADMIN_ROLE = {
+        const removeAdminRole: actions.REMOVE_ADMIN_ROLE = {
           action: "REMOVE_ADMIN_ROLE",
           args: {
             forum: forum.id,
@@ -340,7 +349,7 @@ describe("Forum mutations:", function () {
       it("is admin only", async () => {
         const signer3 = await provider.getSigner(2)
         const address = (await signer.getAddress()).toLowerCase()
-        const removeAdminRole: schema.REMOVE_ADMIN_ROLE = {
+        const removeAdminRole: actions.REMOVE_ADMIN_ROLE = {
           action: "REMOVE_ADMIN_ROLE",
           args: {
             forum: forum.id,
@@ -369,7 +378,7 @@ describe("Forum mutations:", function () {
         })
     
         it("fails with invalid inputs (forum id)", async () => {
-          const newCategory: schema.CREATE_CATEGORY = {
+          const newCategory: actions.CREATE_CATEGORY = {
             action: "CREATE_CATEGORY",
             args: {
               forum: "0x1lkjsdfljk2oij334234234jsdf",
@@ -392,7 +401,7 @@ describe("Forum mutations:", function () {
 
       describe("editCategory", function () {
         it("edits a category", async () => {
-          const editCategory: schema.EDIT_CATEGORY = {
+          const editCategory: actions.EDIT_CATEGORY = {
             action: "EDIT_CATEGORY",
             args: {
               id: category.id,
@@ -408,7 +417,7 @@ describe("Forum mutations:", function () {
         })
     
         it("fails with invalid inputs (category id)", async () => {
-          const editCategory: schema.EDIT_CATEGORY = {
+          const editCategory: actions.EDIT_CATEGORY = {
             action: "EDIT_CATEGORY",
             args: {
               id: "0x123456hjhj",
@@ -422,7 +431,7 @@ describe("Forum mutations:", function () {
     
         it("is admin only", async () => {
           const signer2 = await provider.getSigner(1)
-          const editCategory: schema.EDIT_CATEGORY = {
+          const editCategory: actions.EDIT_CATEGORY = {
             action: "EDIT_CATEGORY",
             args: {
               id: category.id,
@@ -440,7 +449,7 @@ describe("Forum mutations:", function () {
       describe("deleteCategory", function () {
         it("deletes a category", async () => {
           assert.exists(await findCategory(category2.title, forum))
-          const deleteCategory: schema.DELETE_CATEGORY = {
+          const deleteCategory: actions.DELETE_CATEGORY = {
             action: "DELETE_CATEGORY",
             args: {
               id: category2.id
@@ -453,7 +462,7 @@ describe("Forum mutations:", function () {
         })
     
         it("fails with invalid inputs (category id)", async () => {
-          const deleteCategory: schema.DELETE_CATEGORY = {
+          const deleteCategory: actions.DELETE_CATEGORY = {
             action: "DELETE_CATEGORY",
             args: {
               id: category.id + "v"
@@ -466,7 +475,7 @@ describe("Forum mutations:", function () {
         it("is admin only", async () => {
           const signer2 = await provider.getSigner(1)
           const beforeCat = await findCategory(category.title, forum)
-          const deleteCategory: schema.DELETE_CATEGORY = {
+          const deleteCategory: actions.DELETE_CATEGORY = {
             action: "DELETE_CATEGORY",
             args: {
               id: category.id
@@ -504,7 +513,7 @@ describe("Forum mutations:", function () {
           })
       
           it("fails with invalid inputs (forum id)", async () => {
-            const createThread: schema.CREATE_THREAD = {
+            const createThread: actions.CREATE_THREAD = {
               action: "CREATE_THREAD",
               args: {
                 forum: "0x1235jhdf",
@@ -518,7 +527,7 @@ describe("Forum mutations:", function () {
           })
 
           it("fails with invalid inputs (category id)", async () => {
-            const createThread: schema.CREATE_THREAD = {
+            const createThread: actions.CREATE_THREAD = {
               action: "CREATE_THREAD",
               args: {
                 forum: forum.id,
@@ -535,7 +544,7 @@ describe("Forum mutations:", function () {
         describe("deleteThread", function () {
           it("deletes a thread", async () => {
             assert.exists(await findThreadInForum(thread2.title, forum))
-            const deleteThread: schema.DELETE_THREAD = {
+            const deleteThread: actions.DELETE_THREAD = {
               action: "DELETE_THREAD",
               args: {
                 id: thread2.id
@@ -549,7 +558,7 @@ describe("Forum mutations:", function () {
       
           it("fails with invalid inputs (thread id)", async () => {
             assert.exists(await findThreadInForum(thread.title, forum))
-            const deleteThread: schema.DELETE_THREAD = {
+            const deleteThread: actions.DELETE_THREAD = {
               action: "DELETE_THREAD",
               args: {
                 id: thread.id + "O"
@@ -562,7 +571,7 @@ describe("Forum mutations:", function () {
           it("is admin only", async () => {
             const signer2 = await provider.getSigner(1)
             const beforeThread = await findThreadInForum(thread.title, forum)
-            const deleteThread: schema.DELETE_THREAD = {
+            const deleteThread: actions.DELETE_THREAD = {
               action: "DELETE_THREAD",
               args: {
                 id: thread.id
@@ -590,7 +599,7 @@ describe("Forum mutations:", function () {
             })
         
             it("fails with invalid inputs (thread id)", async () => {
-              const createPost: schema.CREATE_POST = {
+              const createPost: actions.CREATE_POST = {
                 action: "CREATE_POST",
                 args: {
                   thread: thread.id + "K",
@@ -603,7 +612,7 @@ describe("Forum mutations:", function () {
             })
 
             it("fails with invalid inputs (reply id)", async () => {
-              const createPost: schema.CREATE_POST = {
+              const createPost: actions.CREATE_POST = {
                 action: "CREATE_POST",
                 args: {
                   thread: thread.id,
@@ -619,7 +628,7 @@ describe("Forum mutations:", function () {
           describe("editPost", function () {
             it("edits a post", async () => {
               const beforePost = await findPostInThread(post.content, thread)
-              const editPost: schema.EDIT_POST = {
+              const editPost: actions.EDIT_POST = {
                 action: "EDIT_POST",
                 args: {
                   id: post.id,
@@ -634,7 +643,7 @@ describe("Forum mutations:", function () {
             })
         
             it("fails with invalid inputs (post id)", async () => {
-              const editPost: schema.EDIT_POST = {
+              const editPost: actions.EDIT_POST = {
                 action: "EDIT_POST",
                 args: {
                   id: post.id + "1",
@@ -646,7 +655,7 @@ describe("Forum mutations:", function () {
             })
         
             it("is author only", async () => {
-              const editPost: schema.EDIT_POST = {
+              const editPost: actions.EDIT_POST = {
                 action: "EDIT_POST",
                 args: {
                   id: post.id,
@@ -676,7 +685,7 @@ describe("Forum mutations:", function () {
             })
 
             it("deletes a post (author)", async () => {
-              const deletePost: schema.DELETE_POST = {
+              const deletePost: actions.DELETE_POST = {
                 action: "DELETE_POST",
                 args: {
                   id: post.id
@@ -689,7 +698,7 @@ describe("Forum mutations:", function () {
             })
 
             it("deletes a post (admin)", async () => {
-              const deletePost: schema.DELETE_POST = {
+              const deletePost: actions.DELETE_POST = {
                 action: "DELETE_POST",
                 args: {
                   id: post2.id
@@ -702,7 +711,7 @@ describe("Forum mutations:", function () {
             })
         
             it("fails with invalid inputs (post id)", async () => {
-              const deletePost: schema.DELETE_POST = {
+              const deletePost: actions.DELETE_POST = {
                 action: "DELETE_POST",
                 args: {
                   id: "0x2343434AAA"
@@ -715,7 +724,7 @@ describe("Forum mutations:", function () {
             it("is admin or author only", async () => {
               const beforePost = await findPostInThread(post3.content, thread)
               const signer2 = await provider.getSigner(1)
-              const deletePost: schema.DELETE_POST = {
+              const deletePost: actions.DELETE_POST = {
                 action: "DELETE_POST",
                 args: {
                   id: post3.id

@@ -36,6 +36,7 @@ export function createCategory(event: NewPost, args: TypedMap<string, JSONValue>
   category.description = descripRes.data
 
   category.deleted = false
+  category.createdAt = event.block.timestamp
   category.save()
 }
 
@@ -67,6 +68,7 @@ export function editCategory(event: NewPost, args: TypedMap<string, JSONValue>):
   if (descripRes.error != "none") { log.warning(descripRes.error, []); return }
   category.description = descripRes.data
 
+  category.lastEditedAt = event.block.timestamp
   category.save()
 }
 
@@ -91,5 +93,6 @@ export function deleteCategory(event: NewPost, args: TypedMap<string, JSONValue>
   }
 
   category.deleted = true
+  category.deletedAt = event.block.timestamp
   category.save()
 }

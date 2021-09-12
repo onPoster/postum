@@ -1,5 +1,3 @@
-import { validate } from "../index"
-
 // These tests should confirm that validate behaves as expected for all schema types
 
 /*

@@ -1,4 +1,5 @@
-import { querySubgraph, Post } from "."
+import { querySubgraph, returnTypes } from "."
+type Post = returnTypes.Post
 
 export async function postsByThread(
   thread: string,
@@ -19,8 +20,12 @@ export async function postsByThread(
         content
         reply_to_post { id }
         deleted
+        createdAt
+        lastEditedAt
       }
       deleted
+      createdAt
+      lastEditedAt
     }
   }`
   const posts: Post[] = (await querySubgraph(query)).data.posts
@@ -63,8 +68,12 @@ export async function postsByAuthor(
         content
         reply_to_post { id }
         deleted
+        createdAt
+        lastEditedAt
       }
       deleted
+      createdAt
+      lastEditedAt
     }
   }`
   const posts: Post[] = (await querySubgraph(query)).data.posts
@@ -161,8 +170,13 @@ export async function postsBySearch(
         content
         reply_to_post { id }
         deleted
+        createdAt
+        lastEditedAt
+        deletedAt
       }
       deleted
+      createdAt
+      lastEditedAt
     }
   }`
   return (await querySubgraph(query)).data.postSearch
@@ -206,8 +220,13 @@ export async function postsBySearchAndForum(
         content
         reply_to_post { id }
         deleted
+        createdAt
+        lastEditedAt
+        deletedAt
       }
       deleted
+      createdAt
+      lastEditedAt
     }
   }`
   console.log((await querySubgraph(query)).data)
@@ -252,8 +271,12 @@ export async function postsBySearchAndThread(
         content
         reply_to_post { id }
         deleted
+        createdAt
+        lastEditedAt
       }
       deleted
+      createdAt
+      lastEditedAt
     }
   }`
   return (await querySubgraph(query)).data.postSearch

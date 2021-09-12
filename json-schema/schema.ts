@@ -575,7 +575,7 @@ const POSTUM_ACTION_schema = {
   ]
 }
 
-module.exports = {
+export {
   CREATE_FORUM_schema,
   EDIT_FORUM_schema,
   DELETE_FORUM_schema,

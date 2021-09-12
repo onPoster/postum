@@ -20,16 +20,19 @@ export function createForum(event: NewPost, args: TypedMap<string, JSONValue>): 
     let user = User.load(userId)
     if (user == null) { 
       user = new User(userId)
+      user.createdAt = event.block.timestamp
       user.save()
     }
     let adminRole = new AdminRole(forum.id + '-' + user.id)
     adminRole.forum = forum.id
     adminRole.user = user.id
     adminRole.deleted = false
+    adminRole.createdAt = event.block.timestamp
     adminRole.save()
   }
-  forum.deleted = false
 
+  forum.deleted = false
+  forum.createdAt = event.block.timestamp
   forum.save()
 }
 
@@ -56,6 +59,7 @@ export function editForum(event: NewPost, args: TypedMap<string, JSONValue>): vo
   if (titleRes.error != "none") { log.warning(titleRes.error, []); return }
   forum.title = titleRes.data
 
+  forum.lastEditedAt = event.block.timestamp
   forum.save()
 }
 
@@ -79,5 +83,6 @@ export function deleteForum(event: NewPost, args: TypedMap<string, JSONValue>): 
   }
 
   forum.deleted = true
+  forum.deletedAt = event.block.timestamp
   forum.save()
 }

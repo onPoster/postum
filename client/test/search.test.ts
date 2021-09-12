@@ -2,7 +2,7 @@
 
 import chai, { assert, expect } from "chai"
 import chaiAsPromised from 'chai-as-promised'
-import * as schema from "@postum/json-schema"
+import { actions } from "@postum/json-schema"
 import { ethers } from "ethers"
 import { 
   delay, 
@@ -13,7 +13,10 @@ import {
   findThreadInForum,
   GRAPH_DELAY
 } from "./utils"
-import client, { Forum, Thread, Post } from ".."
+import client, { returnTypes } from ".."
+type Forum = returnTypes.Forum
+type Thread = returnTypes.Thread
+type Post = returnTypes.Post
 chai.use(chaiAsPromised)
 
 const SALT = Date.now().toString()
@@ -31,7 +34,7 @@ for (let i = 0; i <= postCount; i++) {
 
 /* Test not needed until some version of search is working */
 
-describe("Query posts by string", function () {
+describe("Query posts by text search", function () {
   this.timeout(20000)
 
   let signer: ethers.Signer
@@ -49,7 +52,7 @@ describe("Query posts by string", function () {
 
     const thread: Thread = await findThreadInForum(threadTitle, forum)
     for (let i = 0; i < posts.length; i++) {
-      const createPost: schema.CREATE_POST = {
+      const createPost: actions.CREATE_POST = {
         action: "CREATE_POST",
         args: {
           thread: thread.id,

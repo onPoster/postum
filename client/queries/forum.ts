@@ -1,4 +1,5 @@
-import { querySubgraph, Forum } from "."
+import { querySubgraph, returnTypes } from "."
+type Forum = returnTypes.Forum
 
 export async function forum(id: string) {
   const query = `{
@@ -22,9 +23,15 @@ export async function forum(id: string) {
             content
             reply_to_post { id }
             deleted
+            createdAt
+            lastEditedAt
           }
           deleted
+          createdAt
         }
+        deleted
+        createdAt
+        lastEditedAt
       }
       threads(where: { deleted: false }) {
         id
@@ -38,8 +45,11 @@ export async function forum(id: string) {
           content
           reply_to_post { id }
           deleted
+          createdAt
+          lastEditedAt
         }
         deleted
+        createdAt
       }
       admin_roles(where: { deleted: false }) {
         id
@@ -47,8 +57,11 @@ export async function forum(id: string) {
           id
         }
         deleted
+        createdAt
       }
       deleted
+      createdAt
+      lastEditedAt
     }
   }`
   const forums: Forum[] = (await querySubgraph(query)).data.forums
@@ -79,9 +92,14 @@ export async function allForums(pageSize: number, pageIndex: number) {
             content
             reply_to_post { id }
             deleted
+            createdAt
+            lastEditedAt
           }
           deleted
+          createdAt
         }
+        createdAt
+        lastEditedAt
       }
       threads(where: { deleted: false }, first: ${pageSize}) {
         id
@@ -95,8 +113,11 @@ export async function allForums(pageSize: number, pageIndex: number) {
           content
           reply_to_post { id }
           deleted
+          createdAt
+          lastEditedAt
         }
         deleted
+        createdAt
       }
       admin_roles(where: { deleted: false }, first: ${pageSize}) {
         id
@@ -104,8 +125,11 @@ export async function allForums(pageSize: number, pageIndex: number) {
           id
         }
         deleted
+        createdAt
       }
       deleted
+      createdAt
+      lastEditedAt
     }
   }`
   const forums: Forum[] = (await querySubgraph(query)).data.forums

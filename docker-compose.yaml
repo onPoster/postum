@@ -50,7 +50,7 @@ services:
     image: trufflesuite/ganache-cli
     ports:
       - 8545:8545
-    command: ["ganache-cli"]
+    command: ["ganache-cli", "--mnemonic", "horn hammer original lemon chapter weird gun pond fortune blush cupboard cat"]
     volumes:
       - ganache-volume:/data/ganache
 

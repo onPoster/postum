@@ -1,34 +1,22 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
 
+import logoSmall from '../public/logo-small.png'
+import Web3Connector from './Web3Connector'
+
 export default function Header() {
-  const [mobileNavActive, setMobileNavActive] = useState("")
-
-  function toggleMobileNav() {
-    if (mobileNavActive === "") {
-      setMobileNavActive(" is-active")
-    } else {
-      setMobileNavActive("")
-    }
-  }
-
   return (
-    <nav className="navbar">
-      <div className="navbar-brand">
-        <Link className="navbar-item" to="/">Postum</Link>
-        <a className={"navbar-burger" + mobileNavActive} onClick={() => toggleMobileNav()}>
-          <span></span>
-          <span></span>
-          <span></span>
-        </a>
+    <nav className="level p-5 m-0">
+      <div className="level-left">
+        <div className="level-item">
+          <Link to="/forums">
+            <img src={logoSmall} alt="Postum" width="125"/>
+          </Link>
+        </div>
       </div>
-      <div className={"navbar-menu" + mobileNavActive}>
-        <div className="navbar-end">
-          <div className="navbar-item">
-            <a className="button">
-              Connect
-            </a>
-          </div>
+      <div className="level-right">
+        <div className="level-item">
+          <Web3Connector />
         </div>
       </div>
     </nav>

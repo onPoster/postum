@@ -1,4 +1,5 @@
-import { querySubgraph, Category } from "."
+import { querySubgraph, returnTypes } from "."
+type Category = returnTypes.Category
 
 export async function categoriesByForum(
   forum: string,
@@ -12,13 +13,16 @@ export async function categoriesByForum(
       title
       description
       forum { id }
-      threads(where: { deleted: false }, first: 5) {
+      threads(where: { deleted: false }, first: ${pageSize}) {
         id
         author { id }
         title
         deleted
+        createdAt
       }
       deleted
+      createdAt
+      lastEditedAt
     }
   }`
   const categories: Category[] = (await querySubgraph(query)).data.categories
