@@ -1,47 +1,69 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useHistory } from 'react-router-dom'
-import { store, useGlobalState, useLocalState } from 'state-pool'
 import { useWeb3React } from '@web3-react/core'
 import { ethers } from 'ethers'
 import client, { returnTypes } from '@postum/client'
 import { actions } from "@postum/json-schema"
+import { useApolloClient } from "@apollo/client"
 
 import Layout from '../components/Layout'
-import { create } from 'domain';
+import { useForumsQuery, optimisticForumsMutation } from '../graphql/Forums'
+import { optimisticForumMutation } from '../graphql/Forum'
 
-export default function NewForum() {
-  const context = useWeb3React<ethers.providers.Web3Provider>()
-  const { connector, library, chainId, account, activate, deactivate, active, error } = context
-
-  const createForum: actions.CREATE_FORUM = { 
+function newCreateForum(): actions.CREATE_FORUM {
+  return { 
     action: "CREATE_FORUM", 
     args: {
       title: "",
       admins: [""]
     }
   }
+}
+
+export default function NewForum() {
+  const apolloClient = useApolloClient()
+
+  const context = useWeb3React<ethers.providers.Web3Provider>()
+  const { connector, library, chainId, account, activate, deactivate, active } = context
+  const { loading, error, data, stopPolling, startPolling } = useForumsQuery()
 
   const [formError, setFormError] = useState<string>("")
+
   const history = useHistory()
+
+  let createForum: actions.CREATE_FORUM = newCreateForum()
+
   const handleSubmit = async () => {
     if (!library) {
       setFormError("Must connect an Ethereum account.")
       return
     }
-    createForum.args = Object.assign(
-      createForum.args,
-      {
-        title,
-        admins: Object.keys(admins).map(k => {
+
+    createForum.args = {
+      title,
+      admins: [
+        admins[0], 
+        ...Object.keys(admins).slice(1).map(k => {
           return admins[Number(k)]
         })
-      }
-    )
+      ]
+    }
+
     const signer = await library.getSigner()
+
     try {
-      console.log('submitting forum', createForum)
-      await client.mutate.createForum(signer, createForum)
-      history.push('/forums')
+      const txResponse = await client.mutate.createForum(signer, createForum)
+      // TODO add a notifier in case the wait between response and receipt is long
+      const txReceipt = await txResponse.wait()
+      const id = txReceipt.transactionHash
+
+      optimisticForumsMutation(apolloClient, data, title, id)
+      optimisticForumMutation(apolloClient, title, id, createForum.args.admins)
+
+      createForum = newCreateForum()
+      // TODO instead of routing directly, put a button in the notifier that lets
+      // the user route here if they want to
+      history.push(`/forum/${id}`)
     } catch (e) {
       setFormError(e.message)
     }

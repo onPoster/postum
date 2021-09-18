@@ -5,13 +5,13 @@ import { post } from "."
 export async function grantAdminRole(
   signer: ethers.Signer, 
   grantAdminRole: actions.GRANT_ADMIN_ROLE
-) {
-  await post(grantAdminRole, signer)
+): Promise<ethers.providers.TransactionResponse> {
+  return await post(grantAdminRole, signer)
 }
 
 export async function removeAdminRole(
   signer: ethers.Signer, 
   removeAdminRole: actions.REMOVE_ADMIN_ROLE
-) {
-  await post(removeAdminRole, signer)
+): Promise<ethers.providers.TransactionResponse> {
+  return await post(removeAdminRole, signer)
 }

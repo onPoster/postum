@@ -7,10 +7,15 @@ const poster = new ethers.Contract(
   POSTER_ABI
 )
 
-export async function post(content: actions.POSTUM_ACTION, signer: ethers.Signer) {
+export async function post(
+  content: actions.POSTUM_ACTION, 
+  signer: ethers.Signer
+): Promise<ethers.providers.TransactionResponse> {
   validate(content)
   const userPoster = poster.connect(signer)
-  await userPoster.post(JSON.stringify(content))
+  const txResponse: ethers.providers.TransactionResponse = 
+    await userPoster.post(JSON.stringify(content))
+  return txResponse
 }
 
 export * from "./forum"

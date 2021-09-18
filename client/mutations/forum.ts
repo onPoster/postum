@@ -5,20 +5,20 @@ import { post } from "."
 export async function createForum(
   signer: ethers.Signer, 
   createForum: actions.CREATE_FORUM
-) {
-  await post(createForum, signer)
+): Promise<ethers.providers.TransactionResponse> {
+  return await post(createForum, signer)
 }
 
 export async function editForum(
   signer: ethers.Signer,
   editForum: actions.EDIT_FORUM
-) {
-  await post(editForum, signer)
+): Promise<ethers.providers.TransactionResponse> {
+  return await post(editForum, signer)
 }
 
 export async function deleteForum(
   signer: ethers.Signer,
   deleteForum: actions.DELETE_FORUM
-) {
-  await post(deleteForum, signer)
+): Promise<ethers.providers.TransactionResponse> {
+  return await post(deleteForum, signer)
 }
