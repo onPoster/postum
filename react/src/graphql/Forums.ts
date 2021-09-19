@@ -14,8 +14,8 @@ interface ForumsVars {
   skip: number;
 }
 
-export const FORUM_CARD_FIELDS = gql`
-  fragment ForumCardFields on Forum {
+export const FORUMS_FIELDS = gql`
+  fragment ForumsFields on Forum {
     id
     title
     createdAt
@@ -27,8 +27,8 @@ export const FORUM_CARD_FIELDS = gql`
 `
 
 export const FORUMS = gql`
-  ${FORUM_CARD_FIELDS}
-  query PageOfForums($pageSize: Int!, $skip: Int!) {
+  ${FORUMS_FIELDS}
+  query Forums($pageSize: Int!, $skip: Int!) {
     forums(
       where: { deleted: false }, 
       first: $pageSize, 
@@ -36,7 +36,7 @@ export const FORUMS = gql`
       orderBy: createdAt,
       orderDirection: desc
     ) {
-      ...ForumCardFields
+      ...ForumsFields
     }
   }
 `
@@ -58,17 +58,17 @@ export function useForumsQuery(pageSize: number = DEF_PAGE_SIZE, pageIndex: numb
 export function optimisticForumsMutation(
   apolloClient: ApolloClient<object>,
   data: ForumsData | undefined,
-  title: string,
   id: string,
+  title: string
 ) {
-  const newForums = {
+  const newForum = {
     __typename: "Forum",
-    title,
     id,
+    title,
     createdAt: Math.floor(Date.now()/1000),
     threads: []
   }
-  let forums: returnTypes.Forum[] = [newForums]
+  let forums: returnTypes.Forum[] = [newForum]
   if (data) { forums = forums.concat([...data.forums])}
   apolloClient.writeQuery({
     query: FORUMS,

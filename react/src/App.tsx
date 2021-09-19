@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import 'bulma'
 import '@fortawesome/fontawesome-free/css/all.min.css'
@@ -7,10 +7,13 @@ import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
 
 import './App.css'
 import { getLibrary } from './lib/web3Connection'
+import { NotificationsData, NotificationsContext } from './components/Notifications'
 import Landing from './routes/Landing'
 import Forums from './routes/Forums'
 import NewForum from './routes/NewForum'
 import Forum from './routes/Forum'
+import NewThread from './routes/NewThread'
+import Thread from './routes/Thread'
 
 const apolloClient = new ApolloClient({
   uri: "http://localhost:8000/subgraphs/name/EzraWeller/postum",
@@ -18,17 +21,23 @@ const apolloClient = new ApolloClient({
 })
 
 export default function App() {
+  const [notifications, setNotifications] = useState<NotificationsData>({})
+
   return (
     <Web3ReactProvider getLibrary={getLibrary}>
       <ApolloProvider client={apolloClient}>
-        <Router>
-          <Switch>
-            <Route exact path="/" component={Landing} />
-            <Route path="/forums" component={Forums} />
-            <Route path="/new_forum" component={NewForum} />
-            <Route path="/forum/:id" component={Forum} />
-          </Switch>
-        </Router>
+        <NotificationsContext.Provider value={{notifications, setNotifications}}>
+          <Router>
+            <Switch>
+              <Route exact path="/" component={Landing} />
+              <Route path="/forums" component={Forums} />
+              <Route path="/new_forum" component={NewForum} />
+              <Route path="/forum/:forumId" component={Forum} />
+              <Route path="/new_thread/:forumId" component={NewThread} />
+              <Route path="/thread/:forumId/:threadId" component={Thread} />
+            </Switch>
+          </Router>
+        </NotificationsContext.Provider>
       </ApolloProvider>
     </Web3ReactProvider>
   )

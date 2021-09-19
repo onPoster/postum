@@ -1,3 +1,9 @@
+import { returnTypes } from '@postum/client'
+
+export function shortAccount(account: string): string {
+  return account.slice(0, 6) + "…" + account.slice(-4)
+}
+
 export function lastUpdated(
   time: number | undefined
 ): { units: string, ago: number} | undefined {
@@ -31,4 +37,14 @@ export function lastUpdated(
   }
   lastUpdated.ago = Math.floor(lastUpdated.ago)
   return lastUpdated
+}
+
+export function adminConnected(forum: returnTypes.Forum, account: string | null | undefined): boolean {
+  if (!account) { return false }
+  if (forum.admin_roles?.filter((ar: returnTypes.AdminRole) => {
+    return ar.user?.id.toLowerCase() === account.toLowerCase()
+  }).length > 0) {
+    return true
+  }
+  return false
 }

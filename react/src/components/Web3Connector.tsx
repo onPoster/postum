@@ -3,10 +3,7 @@ import { useWeb3React } from '@web3-react/core'
 import { ethers } from 'ethers'
 
 import { NETWORKS, injected, walletconnect, useEagerConnect, useInactiveListener } from '../lib/web3Connection'
-
-function shortAccount(account: string): string {
-  return account.slice(0, 6) + "…" + account.slice(-4)
-}
+import { shortAccount } from '../lib/utils'
 
 export default function Web3Connector() {
   const [connectDropdownActive, setConnectDropdownActive] = useState(false)

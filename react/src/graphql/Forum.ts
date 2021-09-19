@@ -11,19 +11,7 @@ interface ForumData {
 
 interface ForumVars {
   id: string;
-  threadPageSize: number;
-  threadSkip: number;
 }
-
-export const FORUM_THREAD_FIELDS = gql`
-  fragment ForumThreadFields on Thread {
-    id
-    author
-    title
-    posts { id }
-    createdAt
-  }
-`
 
 export const FORUM_FIELDS = gql`
   fragment ForumFields on Forum {
@@ -41,57 +29,33 @@ export const FORUM_FIELDS = gql`
 
 export const FORUM = gql`
   ${FORUM_FIELDS}
-  ${FORUM_THREAD_FIELDS}
-  query Forum($id: String!, $threadPageSize: Int!, $threadSkip: Int!) {
+  query Forum($id: String!) {
     forum(id: $id) {
       ...ForumFields
-      threads(
-        where: { deleted: false }, 
-        orderBy: createdAt, 
-        orderDirection: desc,
-        first: $threadPageSize,
-        skip: $threadSkip
-      ) {
-        ...ForumThreadFields
-      }
     }
   }
 `
 
-const DEF_PAGE_SIZE = 25
-const DEF_PAGE = 0
-
-export function forumVars(
-  id: string, 
-  threadPageSize: number = DEF_PAGE_SIZE, 
-  threadPageIndex: number = DEF_PAGE
-): ForumVars {
-  return { id, threadPageSize, threadSkip: 25 * threadPageIndex }
-}
-
 export function useForumQuery(
-  id: string, 
-  threadPageSize: number = DEF_PAGE_SIZE, 
-  threadPageIndex: number = DEF_PAGE
+  id: string
 ) {
   return useQuery<ForumData, ForumVars>(
     FORUM,
-    { variables: forumVars(id, threadPageSize, threadPageIndex) }
+    { variables: { id } }
   )
 }
 
 export function optimisticForumMutation(
   apolloClient: ApolloClient<object>,
-  title: string,
   id: string,
+  title: string,
   admins: [string, ...string[]]
 ) {
   const newForum = {
     __typename: "Forum",
-    title,
     id,
+    title,
     createdAt: Math.floor(Date.now()/1000),
-    threads: [],
     admin_roles: admins.map(address => {
       return { 
         user: { id: address } 
@@ -103,7 +67,7 @@ export function optimisticForumMutation(
   }
   apolloClient.writeQuery({
     query: FORUM,
-    variables: forumVars(newForum.id),
+    variables: { id: newForum.id },
     data: { forum: newForum }
   })
 }

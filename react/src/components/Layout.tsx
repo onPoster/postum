@@ -5,6 +5,7 @@ import { ethers } from 'ethers'
 import Header from './Header'
 import Footer from './Footer'
 import { getErrorMessage } from '../lib/web3Connection'
+import { Notifications } from './Notifications'
 
 interface LayoutOpts {
   header?: boolean
@@ -15,8 +16,8 @@ const defs: LayoutOpts = {
 }
 
 export default function Layout(jsx: JSX.Element, opts: LayoutOpts = defs) {
-  const context = useWeb3React<ethers.providers.Web3Provider>()
-  const { error, deactivate } = context
+  const web3Context = useWeb3React<ethers.providers.Web3Provider>()
+  const { error, deactivate } = web3Context
 
   useEffect(() => {}, [error])
 
@@ -31,6 +32,7 @@ export default function Layout(jsx: JSX.Element, opts: LayoutOpts = defs) {
           </div>
         }
         { jsx }
+        <Notifications />
       </div>
       <Footer />
     </div>
