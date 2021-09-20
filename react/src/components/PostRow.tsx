@@ -15,6 +15,8 @@ interface PostRowProps {
   account: string | null | undefined;
 }
 
+// TODO add reply_to_post stuff
+
 export default function PostRow(props: PostRowProps) {
   let updated
   if (props.post && props.post.lastEditedAt) {
@@ -27,7 +29,7 @@ export default function PostRow(props: PostRowProps) {
   return (
     <tr key={props.post.id}>
       <td> 
-        <div className="level has-text-grey-light is-size-6">
+        <div className="level has-text-grey-light is-size-6 is-mobile">
           <div className="level-left">
             <p className="level-item">
               <Link to="/">
@@ -35,7 +37,7 @@ export default function PostRow(props: PostRowProps) {
               </Link>
             </p>
           </div>
-          <div className="level-left">
+          <div className="level-right">
             { updated && 
               <p className="level-item">
                 ~{ updated.ago }{ updated.units }
@@ -45,12 +47,12 @@ export default function PostRow(props: PostRowProps) {
         </div>
         <div className="level is-size-5">
           <div className="level-left">
-            <p className="level-item">{ props.post.content }</p>
+            { props.post.content }
           </div>
         </div>
         <div className="level">
           <div className="level-left"></div>
-          <div className="level-right">
+          <div className="level-right has-text-right">
             {adminConnected(props.forum, props.account) && <a className="button is-ghost">Delete</a>}
             {authorConnected(props.post, props.account) && <a className="button is-ghost">Edit</a>}
             <a className="button is-ghost">Reply</a>

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useWeb3React } from '@web3-react/core'
 import { ethers } from 'ethers'
@@ -39,7 +39,7 @@ export default function Thread() {
       <div>
         <div className="block mb-6">
           <p className="title is-3">{data.thread.title}</p>
-          <p className="subtitle is-6 mb-3">
+          <p className="subtitle is-5 mb-3">
             {"in "}
             <Link to={"/forum/" + forumId}>
               {forumQuery.data.forum.title || "loading..."}
@@ -50,9 +50,6 @@ export default function Thread() {
           }
         </div>
         <Posts forum={forumQuery.data.forum}/>
-        <div className="block">
-          <Link className="button is-medium" to="/">New Post</Link>
-        </div>
       </div>
     )
   }

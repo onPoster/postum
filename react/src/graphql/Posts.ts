@@ -38,7 +38,7 @@ export const POSTS = gql`
       first: $pageSize,
       skip: $skip,
       orderBy: createdAt,
-      orderDirection: desc
+      orderDirection: asc
     ) {
       ...PostsFields
     }
@@ -73,18 +73,21 @@ export function optimisticPostsMutation(
   id: string,
   author: string,
   content: string,
-  thread: string
+  thread: string,
+  reply_to_post: returnTypes.Post = { id: "", content: "" },
 ) {
-  const newPost = {
+  let newPost = {
     __typename: "Post",
     id,
     author: { id: author },
     content,
+    reply_to_post,
     thread: { id: thread },
-    createdAt: Math.floor(Date.now()/1000)
+    createdAt: Math.floor(Date.now()/1000),
+    lastEditedAt: 0
   }
   let posts: returnTypes.Post[] = [newPost]
-  if (data) { posts = posts.concat([...data.posts])}
+  if (data) { posts = data.posts.concat(posts)}
   apolloClient.writeQuery({
     query: POSTS,
     variables: postsVars(thread),
