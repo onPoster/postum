@@ -4,6 +4,7 @@ import 'bulma'
 import '@fortawesome/fontawesome-free/css/all.min.css'
 import { Web3ReactProvider } from '@web3-react/core'
 import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
+import { subgraphURI } from '@postum/client'
 
 import './App.css'
 import { getLibrary } from './lib/web3Connection'
@@ -16,7 +17,7 @@ import NewThread from './routes/NewThread'
 import Thread from './routes/Thread'
 
 const apolloClient = new ApolloClient({
-  uri: "http://localhost:8000/subgraphs/name/EzraWeller/postum",
+  uri: subgraphURI,
   cache: new InMemoryCache()
 })
 

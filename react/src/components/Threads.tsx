@@ -6,7 +6,7 @@ import { useThreadsQuery } from '../graphql/Threads'
 import ThreadRow from './ThreadRow'
 
 export default function Threads() {
-  const { forumId } = useParams()
+  const { forumId } = useParams<{ forumId: string }>()
   const { loading, error, data } = useThreadsQuery(forumId)
   
   if (loading) return (

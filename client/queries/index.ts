@@ -1,6 +1,7 @@
 import axios from "axios"
 
-const subgraphURI = "http://localhost:8000/subgraphs/name/EzraWeller/postum"
+// const subgraphURI = "http://localhost:8000/subgraphs/name/EzraWeller/postum"
+export const subgraphURI = "https://api.thegraph.com/subgraphs/name/ezraweller/postum-rinkeby"
 
 export async function querySubgraph(query: string) {
   let res

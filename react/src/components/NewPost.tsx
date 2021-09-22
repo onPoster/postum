@@ -99,13 +99,13 @@ export default function NewPost(props: NewPostProps) {
         },
         setNotifications
       )
-    } catch (e) {
-      setFormError(e.message)
+    } catch(e) {
+      setFormError("Failed to submit new post")
     }
   }
 
   const [content, setContent] = useState<string>("")
-  const handleContent = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleContent = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(event.currentTarget.value)
   }
 

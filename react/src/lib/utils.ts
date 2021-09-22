@@ -41,9 +41,10 @@ export function lastUpdated(
 
 export function adminConnected(forum: returnTypes.Forum, account: string | null | undefined): boolean {
   if (!account) { return false }
-  if (forum.admin_roles?.filter((ar: returnTypes.AdminRole) => {
-    return ar.user?.id.toLowerCase() === account.toLowerCase()
-  }).length > 0) {
+  const matches = forum.admin_roles?.filter((ar: returnTypes.AdminRole) => {
+    return ar.user?.id?.toLowerCase() === account.toLowerCase()
+  })
+  if (matches && matches.length > 0) {
     return true
   }
   return false

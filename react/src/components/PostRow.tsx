@@ -6,7 +6,7 @@ import { shortAccount, lastUpdated, adminConnected } from '../lib/utils'
 
 function authorConnected(post: returnTypes.Post, account: string | null | undefined): boolean {
   if (!account) { return false }
-  return (post.author?.id.toLowerCase() === account.toLowerCase())
+  return (post.author?.id?.toLowerCase() === account.toLowerCase())
 }
 
 interface PostRowProps {
@@ -32,9 +32,11 @@ export default function PostRow(props: PostRowProps) {
         <div className="level has-text-grey-light is-size-6 is-mobile">
           <div className="level-left">
             <p className="level-item">
-              <Link to="/">
-                { shortAccount(props.post.author?.id) }
-              </Link>
+              { props.post.author?.id && 
+                <Link to="/">
+                  { shortAccount(props.post.author.id) }
+                </Link>
+              }
             </p>
           </div>
           <div className="level-right">

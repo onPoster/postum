@@ -10,7 +10,7 @@ import Posts from '../components/Posts'
 import { adminConnected } from '../lib/utils'
 
 export default function Thread() {
-  const { forumId, threadId } = useParams()
+  const { forumId, threadId } = useParams<{ forumId: string, threadId: string }>()
   const { loading, error, data, stopPolling, startPolling } = useThreadQuery(threadId)
   const forumQuery = useForumQuery(forumId)
   const web3Context = useWeb3React<ethers.providers.Web3Provider>()

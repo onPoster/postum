@@ -17,16 +17,18 @@ interface Networks {
 export const NETWORKS: Networks = {
   1: "mainnet",
   4: "rinkeby",
+  1337: "localhost",
   31337: "localhost"
 }
 
 const RPC_URLS: { [chainId: number]: string } = {
   1: "https://mainnet.infura.io/v3/84842078b09946638c03157f83405213",
   4: "https://rinkeby.infura.io/v3/84842078b09946638c03157f83405213",
+  1337: "http://localhost:8545",
   31337: "http://localhost:8545"
 }
 
-export const injected = new InjectedConnector({ supportedChainIds: [1, 3, 4, 5, 42, 31337] })
+export const injected = new InjectedConnector({ supportedChainIds: [1, 3, 4, 5, 42, 1337, 31337] })
 export const walletconnect = new WalletConnectConnector({
   rpc: { 1: RPC_URLS[1], 4: RPC_URLS[4] },
   qrcode: true

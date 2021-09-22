@@ -13,7 +13,7 @@ interface PostsProps {
 }
 
 export default function Posts(props: PostsProps) {
-  const { threadId, forumId } = useParams()
+  const { threadId, forumId } = useParams<{ threadId: string, forumId: string }>()
   const { loading, error, data } = usePostsQuery(threadId)
   const web3Context = useWeb3React<ethers.providers.Web3Provider>()
   const { account } = web3Context

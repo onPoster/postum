@@ -94,7 +94,7 @@ export default function NewForum() {
         setNotifications
       )
     } catch (e) {
-      setFormError(e.message)
+      setFormError("Failed to submit new forum")
     }
   }
 

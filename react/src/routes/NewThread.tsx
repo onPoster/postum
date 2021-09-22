@@ -24,7 +24,7 @@ function newCreateThread(): actions.CREATE_THREAD {
 }
 
 export default function NewThread() {
-  const { forumId } = useParams()
+  const { forumId } = useParams<{ forumId: string }>()
   const apolloClient = useApolloClient()
   const web3Context = useWeb3React<ethers.providers.Web3Provider>()
   const { library } = web3Context
@@ -107,7 +107,7 @@ export default function NewThread() {
         setNotifications
       )
     } catch (e) {
-      setFormError(e.message)
+      setFormError("Failed to submit new thread")
     }
   }
 
@@ -118,7 +118,7 @@ export default function NewThread() {
   }
 
   const [content, setContent] = useState<string>("")
-  const handleContent = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleContent = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(event.currentTarget.value)
   }
 

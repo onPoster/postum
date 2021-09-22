@@ -17,6 +17,8 @@ export default function Forums() {
     )
 
     if (error) return <span> Error: { error } </span>
+
+    if (!data) return <span> Error: couldn't find data </span>
     
     return (
       <table className="table is-fullwidth is-hoverable">
