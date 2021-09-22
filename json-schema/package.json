@@ -2,14 +2,11 @@
   "name": "@postum/json-schema",
   "version": "0.0.1",
   "description": "Content types for Postum",
-  "main": "index.js",
+  "main": "index.ts",
   "author": "Ezra Weller",
   "license": "MIT",
   "scripts": {
-    "build-all": "yarn build-validate && yarn build-types",
-    "build-validate": "node scripts/validate.build.js",
-    "build-types": "node scripts/tsTypes.build.js",
-
+    "build": "ts-node scripts/types.build.ts",
     "test": "ts-node test/*"
   },
   "devDependencies": {

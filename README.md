@@ -47,6 +47,20 @@ Note:
 - npm should also work, but I have not tested it
 - I have only implemented integration tests (the client tests), since 1) the poster contract should be tested in its main repo, 2) there is no good subgraph unit testing framework (yet), 3) haven't gotten to it
 
+### Ganache accounts for local development
+```
+(0) 0xb2c488b68a775c823263a436bbb8876c4ba64c4b21a0713c5fede5ad369ef89b
+(1) 0x5202280f7887b8962a7351b037eb76392fd6dec3d979a6312933a160271fb266
+(2) 0xfc69e6be7682c78b985bddc4d35c149313c03f122529e76d1666397533f1a480
+(3) 0xb9010af24dc60e6566cf34beda73be9e706d49e18e13916fb6d475cea432118b
+(4) 0xb04ebd6ac8c8fd8331d818128f9506816db26f80bf0dc992a8db987fb25fef8c
+(5) 0x0a7f2d5ab35209dd138933297a411a93226284980fa541d36376eff313b4c428
+(6) 0xbf177ef6f776c127fd172f236e82fcc5911ef055f551c5f6ac3b0c33a100c509
+(7) 0x0591fa96aefe23911faba79f3cc699c9d104dfa49097b81ef2560cccc7775fb3
+(8) 0xa72626308bbe1c4ea491b1f4a861636b008b25d743deb912f70b2ff9678cf97e
+(9) 0x357304b1e6db5691b6102341f28c676905535d1c17cc64ef4d591c009776d742
+```
+
 # Contributing
 Please read [this](https://ethereum-magicians.org/t/eip-eip-3722-poster-a-ridiculously-simple-general-purpose-social-media-smart-contract/6751/58) Ethereum Magicians thead for context.
 

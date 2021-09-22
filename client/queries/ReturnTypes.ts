@@ -6,6 +6,9 @@ export interface Forum {
   categories?: Category[]
   threads?: Thread[]
   admin_roles?: AdminRole[]
+  createdAt?: number
+  lastEditedAt?: number
+  deletedAt?: number
 }
 
 export interface Category {
@@ -14,6 +17,9 @@ export interface Category {
   description?: string
   forum?: Forum
   threads?: Thread[]
+  createdAt?: number
+  lastEditedAt?: number
+  deletedAt?: number
 }
 
 export interface Thread {
@@ -23,6 +29,8 @@ export interface Thread {
   forum?: Forum
   category?: Category
   posts?: Post[]
+  createdAt?: number
+  deletedAt?: number
 }
 
 export interface Post {
@@ -32,12 +40,17 @@ export interface Post {
   reply_to_post?: Post
   thread?: Thread
   deleted?: boolean
+  createdAt?: number
+  lastEditedAt?: number
+  deletedAt?: number
 }
 
 export interface AdminRole {
   id?: string
   user?: User
   forum?: Forum
+  createdAt?: number
+  deletedAt?: number
 }
 
 export interface User {
@@ -45,4 +58,5 @@ export interface User {
   admin_roles?: AdminRole[]
   threads?: Thread[]
   posts?: Post[]
+  createdAt?: number
 }

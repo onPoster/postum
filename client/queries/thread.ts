@@ -1,4 +1,5 @@
-import { querySubgraph, Thread } from "."
+import { querySubgraph, returnTypes } from "."
+type Thread = returnTypes.Thread
 
 export async function threadsByForum(
   forum: string,
@@ -19,7 +20,10 @@ export async function threadsByForum(
         content
         reply_to_post { id }
         deleted
+        createdAt
+        lastEditedAt
       }
+      createdAt
     }
   }`
   const threads: Thread[] = (await querySubgraph(query)).data.threads
@@ -55,6 +59,7 @@ export async function threadsByAuthor(
         deleted
       }
       deleted
+      createdAt
     }
   }`
   const threads: Thread[] = (await querySubgraph(query)).data.threads

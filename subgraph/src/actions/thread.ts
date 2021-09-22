@@ -22,6 +22,7 @@ export function createThread(event: NewPost, args: TypedMap<string, JSONValue>):
   let author = User.load(authorId)
   if (author == null) { 
     author = new User(authorId) 
+    author.createdAt = event.block.timestamp
     author.save()
   }
   thread.author = author.id
@@ -33,6 +34,7 @@ export function createThread(event: NewPost, args: TypedMap<string, JSONValue>):
   }
 
   thread.deleted = false
+  thread.createdAt = event.block.timestamp
   thread.save()
 
   let postId = id
@@ -42,9 +44,10 @@ export function createThread(event: NewPost, args: TypedMap<string, JSONValue>):
   let contentRes = getStringFromJson(args, "content")
   if (contentRes.error != "none") { log.warning(contentRes.error, []); return }
   post.content = contentRes.data
+  
   post.thread = id
   post.deleted = false
-
+  post.createdAt = event.block.timestamp
   post.save()
 }
 
@@ -71,5 +74,6 @@ export function deleteThread(event: NewPost, args: TypedMap<string, JSONValue>):
   }
 
   thread.deleted = true
+  thread.deletedAt = event.block.timestamp
   thread.save()
 }

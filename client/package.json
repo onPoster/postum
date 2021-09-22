@@ -6,6 +6,7 @@
   "author": "Ezra Weller",
   "license": "MIT",
   "scripts": {
+    "build": "tsc --build",
     "test": "yarn test-main && yarn test-search",
     "test-main": "mocha -r ts-node/register test/main.test.ts",
     "test-search": "mocha -r ts-node/register test/search.test.ts"

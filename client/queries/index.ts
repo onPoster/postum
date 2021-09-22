@@ -9,11 +9,6 @@ export async function querySubgraph(query: string) {
   } catch (err) {
     console.error('Graph Query Error: ', err)
   }
-  if(res.errors) {
-    res.errors.forEach(error => {
-      console.log(error.message, error.locations)
-    })
-  }
   return res
 }
 
@@ -22,7 +17,8 @@ export * from "./adminRole"
 export * from "./category"
 export * from "./thread"
 export * from "./post"
-export * from "./ReturnTypes"
+import * as returnTypes from "./ReturnTypes"
+export { returnTypes }
 
 /**
  * TODO needed queries

@@ -6,18 +6,21 @@
   "author": "Ezra Weller",
   "license": "MIT",
   "private": true,
-  "engines": { "node": "~14.17.0" },
+  "engines": {
+    "node": "~14.17.0"
+  },
   "workspaces": [
     "client",
     "json-schema",
     "poster",
-    "subgraph",
-    "vue"
+    "react",
+    "subgraph"
   ],
   "scripts": {
     "up": "yarn docker-up",
     "build": "yarn build-poster && yarn build-json-schema && yarn build-subgraph",
     "deploy-local": "yarn deploy-poster-local && yarn deploy-subgraph-local",
+    "react-local": "yarn workspace @postum/react dev",
     "down": "yarn docker-down && yarn docker-clean",
 
     "docker-up": "docker-compose -f docker-compose.yaml up -d",
@@ -26,7 +29,7 @@
     "docker-logs": "docker-compose -f docker-compose.yaml logs",
 
     "build-poster": "yarn workspace @postum/poster build",
-    "build-json-schema": "yarn workspace @postum/json-schema build-all",
+    "build-json-schema": "yarn workspace @postum/json-schema build",
     "build-subgraph": "yarn workspace @postum/subgraph build-all",
 
     "deploy-poster-local": "yarn workspace @postum/poster deploy-local",

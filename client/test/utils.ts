@@ -1,9 +1,13 @@
 import { ethers } from "ethers"
-import chai, { assert, expect } from "chai"
+import chai, { assert } from "chai"
 import chaiAsPromised from 'chai-as-promised'
-import * as schema from "@postum/json-schema"
-import client, { Forum, Category, Post, Thread } from "../."
-import { AdminRole } from "../queries";
+import { actions } from "@postum/json-schema"
+import client, { returnTypes } from ".."
+type Forum = returnTypes.Forum
+type AdminRole = returnTypes.AdminRole
+type Thread = returnTypes.Thread
+type Post = returnTypes.Post
+type Category = returnTypes.Category
 chai.use(chaiAsPromised)
 
 export const provider = new ethers.providers.JsonRpcProvider()
@@ -16,9 +20,9 @@ export const GRAPH_DELAY = 1000
 
 // ==== mutations ====
 
-export async function newForum(signer: ethers.Signer): Promise<schema.CREATE_FORUM> {
+export async function newForum(signer: ethers.Signer): Promise<actions.CREATE_FORUM> {
   const title: string = Date.now().toString() + " forum title 💖"
-  const newForum: schema.CREATE_FORUM = {
+  const newForum: actions.CREATE_FORUM = {
     action: "CREATE_FORUM",
     args: {
       title,
@@ -33,8 +37,8 @@ export async function newAdminRole(
   signer: ethers.Signer, 
   signer2: ethers.Signer, 
   forum: Forum
-): Promise<schema.GRANT_ADMIN_ROLE> {
-  const newAdminRole: schema.GRANT_ADMIN_ROLE = {
+): Promise<actions.GRANT_ADMIN_ROLE> {
+  const newAdminRole: actions.GRANT_ADMIN_ROLE = {
     action: "GRANT_ADMIN_ROLE",
     args: {
       forum: forum.id,
@@ -45,8 +49,8 @@ export async function newAdminRole(
   return newAdminRole
 }
 
-export async function newCategory(signer: ethers.Signer, forum: Forum, title: string): Promise<schema.CREATE_CATEGORY> {
-  const newCategory: schema.CREATE_CATEGORY = {
+export async function newCategory(signer: ethers.Signer, forum: Forum, title: string): Promise<actions.CREATE_CATEGORY> {
+  const newCategory: actions.CREATE_CATEGORY = {
     action: "CREATE_CATEGORY",
     args: {
       forum: forum.id,
@@ -63,9 +67,9 @@ export async function newThread(
   title: string, 
   forum: Forum,
   category: Category | null
-): Promise<schema.CREATE_THREAD> {
+): Promise<actions.CREATE_THREAD> {
   const content: string = Date.now().toString() + " post content from NEW THREAD 💖"
-  const newThread: schema.CREATE_THREAD = {
+  const newThread: actions.CREATE_THREAD = {
     action: "CREATE_THREAD",
     args: {
       forum: forum.id,
@@ -81,9 +85,9 @@ export async function newThread(
   return newThread
 }
 
-export async function newPost(signer: ethers.Signer, thread: Thread): Promise<schema.CREATE_POST> {
+export async function newPost(signer: ethers.Signer, thread: Thread): Promise<actions.CREATE_POST> {
   const content: string = Date.now().toString() + " post content from NEW POST"
-  const newPost: schema.CREATE_POST = {
+  const newPost: actions.CREATE_POST = {
     action: "CREATE_POST",
     args: {
       thread: thread.id,
@@ -109,7 +113,7 @@ export async function findForum(title: string): Promise<Forum> {
   return res as Forum
 }
 
-export async function findAdminRole(adminRole: schema.GRANT_ADMIN_ROLE): Promise<AdminRole> {
+export async function findAdminRole(adminRole: actions.GRANT_ADMIN_ROLE): Promise<AdminRole> {
   const admins = await client.query.adminsByForum(adminRole.args.forum, 1000, 0)
   let res: AdminRole | false = false
   admins.forEach(admin => {

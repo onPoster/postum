@@ -29,6 +29,7 @@ export function grantAdminRole(event: NewPost, args: TypedMap<string, JSONValue>
   let user = User.load(userId)
   if (user == null) { 
     user = new User(userId) 
+    user.createdAt = event.block.timestamp
     user.save()
   }
   let id = forum.id + "-" + user.id
@@ -36,6 +37,7 @@ export function grantAdminRole(event: NewPost, args: TypedMap<string, JSONValue>
   adminRole.forum = forum.id
   adminRole.user = user.id
   adminRole.deleted = false
+  adminRole.createdAt = event.block.timestamp
   adminRole.save()
 }
 
@@ -64,5 +66,6 @@ export function removeAdminRole(event: NewPost, args: TypedMap<string, JSONValue
   if (adminRole == null) { return }
 
   adminRole.deleted = true
+  adminRole.deletedAt = event.block.timestamp
   adminRole.save()
 }

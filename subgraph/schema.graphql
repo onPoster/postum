@@ -5,6 +5,9 @@ type Forum @entity {
   threads: [Thread!]! @derivedFrom(field: "forum")
   admin_roles: [AdminRole!]! @derivedFrom(field: "forum")
   deleted: Boolean!
+  createdAt: BigInt!
+  lastEditedAt: BigInt
+  deletedAt: BigInt
 }
 
 type Category @entity {
@@ -14,6 +17,9 @@ type Category @entity {
   forum: Forum!
   threads: [Thread!]! @derivedFrom(field: "category")
   deleted: Boolean!
+  createdAt: BigInt!
+  lastEditedAt: BigInt
+  deletedAt: BigInt
 }
 
 type Thread @entity {
@@ -24,6 +30,8 @@ type Thread @entity {
   category: Category
   posts: [Post!]! @derivedFrom(field: "thread")
   deleted: Boolean!
+  createdAt: BigInt!
+  deletedAt: BigInt
 }
 
 type Post @entity {
@@ -33,6 +41,9 @@ type Post @entity {
   reply_to_post: Post
   thread: Thread!
   deleted: Boolean!
+  createdAt: BigInt!
+  lastEditedAt: BigInt
+  deletedAt: BigInt
 }
 
 type User @entity {
@@ -40,6 +51,7 @@ type User @entity {
   admin_roles: [AdminRole!]! @derivedFrom(field: "user")
   threads: [Thread!]! @derivedFrom(field: "author")
   posts: [Post!]! @derivedFrom(field: "author")
+  createdAt: BigInt!
 }
 
 type AdminRole @entity {
@@ -47,6 +59,8 @@ type AdminRole @entity {
   user: User!
   forum: Forum!
   deleted: Boolean!
+  createdAt: BigInt!
+  deletedAt: BigInt
 }
 
 type _Schema_ @fulltext(

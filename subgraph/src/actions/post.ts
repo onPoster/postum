@@ -17,6 +17,7 @@ export function createPost(event: NewPost, args: TypedMap<string, JSONValue>): v
   let author = User.load(authorId)
   if (author == null) { 
     author = new User(authorId) 
+    author.createdAt = event.block.timestamp
     author.save()
   }
   post.author = author.id
@@ -33,7 +34,7 @@ export function createPost(event: NewPost, args: TypedMap<string, JSONValue>): v
 
   post.thread = thread.id
   post.deleted = false
-
+  post.createdAt = event.block.timestamp
   post.save()
 }
 
@@ -60,6 +61,7 @@ export function editPost(event: NewPost, args: TypedMap<string, JSONValue>): voi
   if (contentRes.error != "none") { log.warning(contentRes.error, []); return }
   post.content = contentRes.data
 
+  post.lastEditedAt = event.block.timestamp
   post.save()
 }
 
@@ -94,5 +96,6 @@ export function deletePost(event: NewPost, args: TypedMap<string, JSONValue>): v
   }
 
   post.deleted = true
+  post.deletedAt = event.block.timestamp
   post.save()
 }
